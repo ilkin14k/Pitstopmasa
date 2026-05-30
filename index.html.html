@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Glamoni — Maliyyə İdarəetməsi</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f0f0f;color:#f0ece4;font-family:'DM Sans',sans-serif}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#C9A84C;border-radius:2px}
+input,select{outline:none;font-family:'DM Sans',sans-serif}
+input::placeholder{color:#555}
+button{font-family:'DM Sans',sans-serif;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const SUPABASE_URL = "https://pfwsobsivxxoytzvjebz.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmd3NvYnNpdnh4b3l0enZqZWJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzk3NTAsImV4cCI6MjA5NTcxNTc1MH0.AEqPGMQ_QWzOMEcPXqRZLQzdanobRKaEsBiTWXeWEDo";
+
+const SEED_PRODUCTS = [
+  {name:"Swarovski gümüş",color:"Mavi",maya:19.5,satis:75,bas:1},
+  {name:"Swarovski gümüş",color:"Rose Gold",maya:19.5,satis:75,bas:1},
+  {name:"Swarovski qanadlı",color:"Çəhrayı",maya:2.2,satis:40,bas:3},
+  {name:"Swarovski qanadlı",color:"Rose Gold",maya:2.2,satis:40,bas:5},
+  {name:"Swarovski qanadlı",color:"Ağ",maya:2.2,satis:40,bas:5},
+  {name:"Swarovski bilərzik",color:"Çəhrayı",maya:2.3,satis:45,bas:3},
+  {name:"Swarovski bilərzik",color:"Rose Gold",maya:2.3,satis:45,bas:5},
+  {name:"Swarovski bilərzik",color:"Mavi",maya:2.3,satis:45,bas:4},
+  {name:"Cartier Crash",color:"Qızıl",maya:14.5,satis:70,bas:2},
+  {name:"Cartier Crash",color:"Gümüş",maya:14.5,satis:70,bas:1},
+  {name:"Cartier Crash",color:"Qara",maya:14.5,satis:70,bas:1},
+  {name:"LV Sep",color:"Qızıl",maya:7,satis:35,bas:1},
+  {name:"Swarovski sep ziynetchi",color:"Çəhrayı",maya:17,satis:50,bas:1},
+  {name:"Rimowa 17PM",color:"Gümüş",maya:20,satis:70,bas:1},
+  {name:"Rimowa 17PM",color:"Mavi",maya:20,satis:70,bas:1},
+  {name:"Rimowa 14",color:"Gümüş",maya:20,satis:70,bas:1},
+  {name:"Rimowa 16",color:"Gümüş",maya:20,satis:70,bas:1},
+  {name:"Rimowa 15",color:"Çəhrayı",maya:20,satis:70,bas:1},
+  {name:"Rimowa 17 Pro",color:"Gümüş",maya:20,satis:70,bas:1},
+  {name:"Goyard kartlıq",color:"Mavi",maya:7,satis:25,bas:1},
+  {name:"Goyard pulqabı",color:"Qara",maya:10,satis:30,bas:1},
+  {name:"Pandora üzük",color:"Çəhrayı",maya:8,satis:25,bas:1},
+  {name:"Pandora üzük",color:"Rose Gold",maya:8,satis:25,bas:1},
+  {name:"Goyard 17PM",color:"Ağ",maya:3,satis:25,bas:1},
+  {name:"Goyard 17PM",color:"Çəhrayı",maya:3,satis:25,bas:1},
+  {name:"Goyard 17 Pro",color:"Narıncı",maya:3,satis:25,bas:1},
+  {name:"Goyard 17 Pro",color:"Çəhrayı",maya:3,satis:25,bas:1},
+  {name:"Goyard 17",color:"Qırmızı",maya:3,satis:25,bas:1},
+  {name:"Goyard 16 Pro",color:"Ağ",maya:3,satis:25,bas:1},
+  {name:"Polo kepka",color:"Çəhrayı",maya:6,satis:40,bas:1},
+];
+const SEED_SALES = [
+  {tarix:"21/05/2026",mehsul:"Cartier Crash",reng:"Qızıl",maya:14.5,satis_qiymet:70,catdirilma:2.4,paketleme:6.5},
+  {tarix:"22/05/2026",mehsul:"Swarovski sep ziynetchi",reng:"Çəhrayı",maya:17,satis_qiymet:45,catdirilma:2.6,paketleme:7.4},
+];
+const SEED_EXPENSES = [
+  {tarix:"18/05/2026",haqqinda:"Meta",meblег:80},
+  {tarix:"21/05/2026",haqqinda:"Meta",meblег:2.5},
+  {tarix:"21/05/2026",haqqinda:"Mavi tik",meblег:14},
+];
+
+// ── Supabase helpers ──
+const sbFetch = async (path, opts={}, token=null) => {
+  const headers = {
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${token || SUPABASE_KEY}`,
+    "Content-Type": "application/json",
+    Prefer: opts.prefer || "return=representation",
+  };
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { ...opts, headers });
+  if (!res.ok) { const e = await res.text(); throw new Error(e); }
+  const t = await res.text(); return t ? JSON.parse(t) : [];
+};
+
+const authFetch = async (path, body) => {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/${path}`, {
+    method: "POST",
+    headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || "Xəta");
+  return data;
+};
+
+const CDOT = {"Qızıl":"#C9A84C","Rose Gold":"#B76E79","Çəhrayı":"#F48FB1","Mavi":"#64B5F6","Gümüş":"#B0BEC5","Ağ":"#ECEFF1","Qara":"#546E7A","Narıncı":"#FFA726","Qırmızı":"#EF5350","default":"#A5D6A7"};
+const cdot = c => CDOT[c] || CDOT.default;
+const fmt  = n => n == null ? "—" : Number(n).toLocaleString("az-AZ", {minimumFractionDigits:2, maximumFractionDigits:2});
+const today = () => new Date().toLocaleDateString("az-AZ", {day:"2-digit",month:"2-digit",year:"numeric"}).replace(/\./g,"/");
+
+const {useState, useEffect, useCallback} = React;
+
+// ══════════════════════════════════════════
+// LOGIN SCREEN
+// ══════════════════════════════════════════
+function LoginScreen({onLogin}) {
+  const [email, setEmail]     = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState("");
+  const [showPass, setShowPass] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) return setError("Email və parolu daxil edin");
+    setLoading(true); setError("");
+    try {
+      const data = await authFetch("token?grant_type=password", { email, password });
+      onLogin(data.access_token, data.user);
+    } catch(e) {
+      setError("Email və ya parol yanlışdır");
+    }
+    setLoading(false);
+  };
+
+  const handleKey = e => { if(e.key==="Enter") handleLogin(); };
+
+  return (
+    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{width:"100%",maxWidth:380}}>
+        {/* Logo */}
+        <div style={{textAlign:"center",marginBottom:40}}>
+          <div style={{width:64,height:64,background:"linear-gradient(135deg,#C9A84C,#a07830)",borderRadius:"50%",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:28,marginBottom:16}}>✦</div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontSize:32,color:"#C9A84C",letterSpacing:3}}>GLAMONI</div>
+          <div style={{fontSize:12,color:"#555",letterSpacing:3,textTransform:"uppercase",marginTop:4}}>Maliyyə İdarəetməsi</div>
+        </div>
+
+        {/* Form */}
+        <div style={{background:"#161616",border:"1px solid #222",borderRadius:16,padding:28}}>
+          <div style={{fontSize:16,fontWeight:600,color:"#e5ddd0",marginBottom:24,textAlign:"center"}}>Xoş gəldiniz</div>
+
+          {error && (
+            <div style={{background:"#7f1d1d",border:"1px solid #ef4444",borderRadius:8,padding:"10px 14px",fontSize:13,color:"#fca5a5",marginBottom:16}}>
+              {error}
+            </div>
+          )}
+
+          <div style={{marginBottom:14}}>
+            <div style={{fontSize:11,color:"#555",letterSpacing:1,textTransform:"uppercase",marginBottom:6}}>Email</div>
+            <input
+              type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={handleKey}
+              placeholder="email@example.com"
+              style={{width:"100%",background:"#1e1e1e",border:"1px solid #2a2a2a",borderRadius:8,color:"#e5ddd0",padding:"12px 14px",fontSize:14}}
+            />
+          </div>
+
+          <div style={{marginBottom:24}}>
+            <div style={{fontSize:11,color:"#555",letterSpacing:1,textTransform:"uppercase",marginBottom:6}}>Parol</div>
+            <div style={{position:"relative"}}>
+              <input
+                type={showPass?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={handleKey}
+                placeholder="••••••••"
+                style={{width:"100%",background:"#1e1e1e",border:"1px solid #2a2a2a",borderRadius:8,color:"#e5ddd0",padding:"12px 42px 12px 14px",fontSize:14}}
+              />
+              <button onClick={()=>setShowPass(v=>!v)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#555",fontSize:16,lineHeight:1}}>
+                {showPass?"🙈":"👁"}
+              </button>
+            </div>
+          </div>
+
+          <button
+            onClick={handleLogin} disabled={loading}
+            style={{width:"100%",background:"linear-gradient(135deg,#C9A84C,#a07830)",border:"none",borderRadius:8,color:"#0f0f0f",padding:"13px",fontWeight:700,fontSize:15,opacity:loading?0.7:1}}
+          >
+            {loading ? "Yüklənir..." : "Daxil ol"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════
+// MAIN DASHBOARD
+// ══════════════════════════════════════════
+function Dashboard({token, user, onLogout}) {
+  const [products, setProducts] = useState([]);
+  const [sales,    setSales]    = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [seeding,  setSeeding]  = useState(false);
+  const [tab,      setTab]      = useState("dashboard");
+  const [toast,    setToast]    = useState(null);
+  const [saleForm, setSaleForm] = useState({mehsul:"",reng:"",satis_qiymet:"",catdirilma:"",paketleme:""});
+  const [prodForm, setProdForm] = useState({name:"",color:"",maya:"",satis:"",bas:""});
+  const [expForm,  setExpForm]  = useState({haqqinda:"",meblег:""});
+
+  const showToast = (msg,type="ok") => { setToast({msg,type}); setTimeout(()=>setToast(null),3000); };
+
+  const api = useCallback((path, opts={}) => sbFetch(path, opts, token), [token]);
+
+  const loadAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [p,s,e] = await Promise.all([
+        api("products?order=id"),
+        api("sales?order=id"),
+        api("expenses?order=id"),
+      ]);
+      setProducts(p); setSales(s); setExpenses(e);
+    } catch(err) { showToast("Xəta: "+err.message,"err"); }
+    setLoading(false);
+  }, [api]);
+
+  useEffect(() => { loadAll(); }, [loadAll]);
+
+  const computed = products.map(p => {
+    const sold = sales.filter(s => s.mehsul===p.name && s.reng===p.color).length;
+    return {...p, cari: Math.max(0, p.bas - sold)};
+  });
+
+  const totalRealized = sales.reduce((a,s) => a+(Number(s.satis_qiymet)-Number(s.maya)-Number(s.catdirilma)-Number(s.paketleme)), 0);
+  const totalExpenses = expenses.reduce((a,e) => a+Number(e.meblег), 0);
+  const netProfit     = totalRealized - totalExpenses;
+  const totalMaya     = computed.reduce((a,p) => a+p.cari*Number(p.maya), 0);
+  const futureGain    = computed.reduce((a,p) => a+p.cari*(Number(p.satis)-Number(p.maya)), 0);
+  const uniqueNames   = [...new Set(computed.map(p=>p.name))];
+  const colorsFor     = name => computed.filter(p=>p.name===name).map(p=>p.color);
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    try {
+      for(const p of SEED_PRODUCTS) await api("products", {method:"POST",body:JSON.stringify(p)});
+      for(const s of SEED_SALES)    await api("sales",    {method:"POST",body:JSON.stringify(s)});
+      for(const e of SEED_EXPENSES) await api("expenses", {method:"POST",body:JSON.stringify(e)});
+      showToast("Məlumatlar əlavə edildi ✓");
+      await loadAll();
+    } catch(e) { showToast("Xəta: "+e.message,"err"); }
+    setSeeding(false);
+  };
+
+  const handleAddSale = async () => {
+    const {mehsul,reng,satis_qiymet,catdirilma,paketleme} = saleForm;
+    if(!mehsul||!reng) return showToast("Məhsul və rəng seçin","err");
+    const prod = computed.find(p=>p.name===mehsul&&p.color===reng);
+    if(!prod) return showToast("Belə məhsul yoxdur","err");
+    if(prod.cari===0) return showToast("Stokda yoxdur!","err");
+    try {
+      await api("sales", {method:"POST", body:JSON.stringify({
+        tarix:today(), mehsul, reng, maya:prod.maya,
+        satis_qiymet: parseFloat(satis_qiymet)||prod.satis,
+        catdirilma:   parseFloat(catdirilma)||0,
+        paketleme:    parseFloat(paketleme)||0,
+      })});
+      setSaleForm({mehsul:"",reng:"",satis_qiymet:"",catdirilma:"",paketleme:""});
+      showToast("Satış əlavə edildi ✓"); await loadAll();
+    } catch(e) { showToast("Xəta: "+e.message,"err"); }
+  };
+
+  const handleAddProduct = async () => {
+    const {name,color,maya,satis,bas} = prodForm;
+    if(!name||!color||!maya||!satis||!bas) return showToast("Bütün sahələri doldurun","err");
+    try {
+      await api("products", {method:"POST", body:JSON.stringify({name,color,maya:parseFloat(maya),satis:parseFloat(satis),bas:parseInt(bas)})});
+      setProdForm({name:"",color:"",maya:"",satis:"",bas:""});
+      showToast("Məhsul əlavə edildi ✓"); await loadAll();
+    } catch(e) { showToast("Xəta: "+e.message,"err"); }
+  };
+
+  const handleAddExpense = async () => {
+    const {haqqinda,meblег} = expForm;
+    if(!haqqinda||!meblег) return showToast("Bütün sahələri doldurun","err");
+    try {
+      await api("expenses", {method:"POST", body:JSON.stringify({tarix:today(),haqqinda,meblег:parseFloat(meblег)})});
+      setExpForm({haqqinda:"",meblег:""});
+      showToast("Xərc əlavə edildi ✓"); await loadAll();
+    } catch(e) { showToast("Xəta: "+e.message,"err"); }
+  };
+
+  const doDelete = async (table, id) => {
+    try {
+      await api(`${table}?id=eq.${id}`, {method:"DELETE", prefer:"return=minimal"});
+      showToast("Silindi"); await loadAll();
+    } catch(e) { showToast("Xəta: "+e.message,"err"); }
+  };
+
+  const tabs = [{id:"dashboard",label:"📊 Dashboard"},{id:"sales",label:"💳 Satışlar"},{id:"stock",label:"📦 Stok"},{id:"expenses",label:"💸 Xərclər"}];
+
+  const S = {
+    sel:{background:"#1e1e1e",border:"1px solid #2a2a2a",borderRadius:8,color:"#e5ddd0",padding:"10px 12px",fontSize:13,width:"100%"},
+    inp:{background:"#1e1e1e",border:"1px solid #2a2a2a",borderRadius:8,color:"#e5ddd0",padding:"10px 12px",fontSize:13,width:"100%"},
+    btn:{background:"linear-gradient(135deg,#C9A84C,#a07830)",border:"none",borderRadius:8,color:"#0f0f0f",padding:"10px 22px",fontWeight:700,fontSize:13},
+    del:{background:"transparent",border:"1px solid #333",color:"#555",padding:"3px 10px",borderRadius:6,fontSize:11},
+    th:{padding:"10px 14px",textAlign:"left",color:"#555",fontWeight:500,fontSize:11,letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap"},
+    td:{padding:"10px 14px"},
+    card:{background:"#161616",border:"1px solid #222",borderRadius:12},
+  };
+
+  return (
+    <div style={{minHeight:"100vh"}}>
+      {/* Header */}
+      <header style={{padding:"20px 20px 0",borderBottom:"1px solid #1e1e1e"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <div style={{width:34,height:34,background:"linear-gradient(135deg,#C9A84C,#a07830)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>✦</div>
+            <div>
+              <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,color:"#C9A84C",letterSpacing:2}}>GLAMONI</div>
+              <div style={{fontSize:10,color:"#555",letterSpacing:2,textTransform:"uppercase"}}>Maliyyə İdarəetməsi</div>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            {products.length===0&&!loading&&(
+              <button onClick={handleSeed} disabled={seeding} style={{...S.btn,padding:"7px 14px",fontSize:12,opacity:seeding?0.6:1}}>
+                {seeding?"⏳ Yüklənir...":"📥 Məlumatları yüklə"}
+              </button>
+            )}
+            <button onClick={loadAll} style={{background:"transparent",border:"1px solid #2a2a2a",color:"#555",padding:"7px 12px",borderRadius:8,fontSize:12}}>↻</button>
+            <button onClick={onLogout} style={{background:"transparent",border:"1px solid #2a2a2a",color:"#555",padding:"7px 12px",borderRadius:8,fontSize:12}}>Çıxış</button>
+          </div>
+        </div>
+        <nav style={{display:"flex",gap:2,overflowX:"auto"}}>
+          {tabs.map(t=>(
+            <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"8px 14px",background:tab===t.id?"#C9A84C":"transparent",color:tab===t.id?"#0f0f0f":"#777",border:"none",borderRadius:"6px 6px 0 0",fontSize:13,fontWeight:600,whiteSpace:"nowrap"}}>
+              {t.label}
+            </button>
+          ))}
+        </nav>
+      </header>
+
+      {toast&&<div style={{position:"fixed",top:16,right:16,zIndex:999,background:toast.type==="err"?"#7f1d1d":"#14532d",border:`1px solid ${toast.type==="err"?"#ef4444":"#22c55e"}`,padding:"12px 18px",borderRadius:8,fontSize:13,color:"#fff",boxShadow:"0 4px 20px rgba(0,0,0,.6)",maxWidth:320}}>{toast.msg}</div>}
+
+      <main style={{padding:"20px",maxWidth:1100,margin:"0 auto"}}>
+        {loading&&<div style={{textAlign:"center",color:"#555",padding:80,fontSize:14}}>Yüklənir...</div>}
+        {!loading&&<>
+
+          {/* DASHBOARD */}
+          {tab==="dashboard"&&<div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:10,marginBottom:20}}>
+              {[
+                {label:"Realizə Qazancı",value:fmt(totalRealized),color:"#C9A84C",icon:"💰",sub:"satışlardan"},
+                {label:"Aylıq Xərclər",value:fmt(totalExpenses),color:"#ef4444",icon:"📤",sub:"meta, reklam..."},
+                {label:"Xalis Qazanc",value:fmt(netProfit),color:netProfit>=0?"#22c55e":"#ef4444",icon:"📈",sub:"qazanc − xərc"},
+                {label:"Stok Maya Dəyəri",value:fmt(totalMaya),color:"#a78bfa",icon:"📦",sub:"anbardakı mallar"},
+                {label:"Gələcək Qazanc",value:fmt(futureGain),color:"#38bdf8",icon:"🔮",sub:"hamısı satsanız"},
+              ].map(k=>(
+                <div key={k.label} style={{...S.card,padding:"16px",position:"relative",overflow:"hidden"}}>
+                  <div style={{position:"absolute",top:12,right:12,fontSize:18,opacity:.12}}>{k.icon}</div>
+                  <div style={{fontSize:10,color:"#555",letterSpacing:1,textTransform:"uppercase",marginBottom:6}}>{k.label}</div>
+                  <div style={{fontSize:19,fontWeight:600,color:k.color,fontFamily:"'Playfair Display',serif"}}>{k.value} ₼</div>
+                  <div style={{fontSize:11,color:"#444",marginTop:3}}>{k.sub}</div>
+                </div>
+              ))}
+            </div>
+            <div style={S.card}>
+              <div style={{padding:"14px 16px",borderBottom:"1px solid #222",display:"flex",justifyContent:"space-between"}}>
+                <span style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:"#C9A84C"}}>Stok Vəziyyəti</span>
+                <span style={{fontSize:12,color:"#444"}}>{computed.length} məhsul</span>
+              </div>
+              <div style={{overflowX:"auto"}}>
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+                  <thead><tr style={{background:"#111"}}>
+                    {["Məhsul","Rəng","Maya","Satış","Stok","Gələcək Qaz.","Maya Dəy."].map(h=><th key={h} style={S.th}>{h}</th>)}
+                  </tr></thead>
+                  <tbody>
+                    {computed.map((p,i)=>(
+                      <tr key={p.id} style={{borderTop:"1px solid #1a1a1a",background:i%2===0?"#161616":"#131313"}}>
+                        <td style={{...S.td,color:"#e5ddd0"}}>{p.name}</td>
+                        <td style={S.td}><span style={{display:"inline-flex",alignItems:"center",gap:5}}><span style={{width:8,height:8,borderRadius:"50%",background:cdot(p.color),display:"inline-block"}}/><span style={{color:"#aaa"}}>{p.color}</span></span></td>
+                        <td style={{...S.td,color:"#888"}}>{p.maya} ₼</td>
+                        <td style={{...S.td,color:"#C9A84C"}}>{p.satis} ₼</td>
+                        <td style={S.td}><span style={{background:p.cari>0?"#14532d22":"#7f1d1d22",color:p.cari>0?"#4ade80":"#f87171",padding:"2px 10px",borderRadius:20,fontWeight:600,fontSize:12}}>{p.cari}</span></td>
+                        <td style={{...S.td,color:"#38bdf8"}}>{fmt(p.cari*(Number(p.satis)-Number(p.maya)))} ₼</td>
+                        <td style={{...S.td,color:"#a78bfa"}}>{fmt(p.cari*Number(p.maya))} ₼</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>}
+
+          {/* SALES */}
+          {tab==="sales"&&<div>
+            <div style={{...S.card,padding:18,marginBottom:16}}>
+              <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:"#C9A84C",marginBottom:14}}>Yeni Satış Əlavə Et</div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:10,marginBottom:12}}>
+                <select value={saleForm.mehsul} onChange={e=>setSaleForm(f=>({...f,mehsul:e.target.value,reng:""}))} style={S.sel}>
+                  <option value="">Məhsul seçin...</option>
+                  {uniqueNames.map(n=><option key={n} value={n}>{n}</option>)}
+                </select>
+                <select value={saleForm.reng} onChange={e=>setSaleForm(f=>({...f,reng:e.target.value}))} style={S.sel} disabled={!saleForm.mehsul}>
+                  <option value="">Rəng seçin...</option>
+                  {colorsFor(saleForm.mehsul).map(c=><option key={c} value={c}>{c}</option>)}
+                </select>
+                {[["satis_qiymet","Satış qiyməti (₼)"],["catdirilma","Çatdırılma (₼)"],["paketleme","Paketləmə (₼)"]].map(([k,ph])=>(
+                  <input key={k} type="number" placeholder={ph} value={saleForm[k]} onChange={e=>setSaleForm(f=>({...f,[k]:e.target.value}))} style={S.inp}/>
+                ))}
+              </div>
+              <button onClick={handleAddSale} style={S.btn}>+ Satış əlavə et</button>
+            </div>
+            <div style={S.card}>
+              <div style={{padding:"14px 16px",borderBottom:"1px solid #222"}}>
+                <span style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:"#C9A84C"}}>Satış Tarixçəsi</span>
+                <span style={{marginLeft:10,fontSize:12,color:"#444"}}>{sales.length} satış · <span style={{color:"#C9A84C"}}>{fmt(totalRealized)} ₼</span></span>
+              </div>
+              <div style={{overflowX:"auto"}}>
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+                  <thead><tr style={{background:"#111"}}>
+                    {["Tarix","Məhsul","Rəng","Satış","Maya","Çatd.","Pakt.","Qazanc",""].map(h=><th key={h} style={S.th}>{h}</th>)}
+                  </tr></thead>
+                  <tbody>
+                    {sales.map((s,i)=>{
+                      const q=Number(s.satis_qiymet)-Number(s.maya)-Number(s.catdirilma)-Number(s.paketleme);
+                      return(<tr key={s.id} style={{borderTop:"1px solid #1a1a1a",background:i%2===0?"#161616":"#131313"}}>
+                        <td style={{...S.td,color:"#555",whiteSpace:"nowrap"}}>{s.tarix}</td>
+                        <td style={{...S.td,color:"#e5ddd0"}}>{s.mehsul}</td>
+                        <td style={S.td}><span style={{display:"inline-flex",alignItems:"center",gap:5}}><span style={{width:8,height:8,borderRadius:"50%",background:cdot(s.reng),display:"inline-block"}}/><span style={{color:"#aaa"}}>{s.reng}</span></span></td>
+                        <td style={{...S.td,color:"#C9A84C"}}>{s.satis_qiymet} ₼</td>
+                        <td style={{...S.td,color:"#888"}}>{s.maya} ₼</td>
+                        <td style={{...S.td,color:"#888"}}>{s.catdirilma} ₼</td>
+                        <td style={{...S.td,color:"#888"}}>{s.paketleme} ₼</td>
+                        <td style={{...S.td,color:q>=0?"#22c55e":"#ef4444",fontWeight:600}}>{fmt(q)} ₼</td>
+                        <td style={S.td}><button onClick={()=>doDelete("sales",s.id)} style={S.del}>Sil</button></td>
+                      </tr>);
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>}
+
+          {/* STOCK */}
+          {tab==="stock"&&<div>
+            <div style={{...S.card,padding:18,marginBottom:16}}>
+              <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:"#C9A84C",marginBottom:14}}>Yeni Məhsul Əlavə Et</div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:10,marginBottom:12}}>
+                {[["name","Məhsul adı"],["color","Rəng"],["maya","Maya (₼)"],["satis","Satış qiyməti (₼)"],["bas","Say"]].map(([k,ph])=>(
+                  <input key={k} placeholder={ph} value={prodForm[k]} onChange={e=>setProdForm(f=>({...f,[k]:e.target.value}))} style={S.inp}/>
+                ))}
+              </div>
+              <button onClick={handleAddProduct} style={S.btn}>+ Məhsul əlavə et</button>
+            </div>
+            <div style={S.card}>
+              <div style={{padding:"14px 16px",borderBottom:"1px solid #222"}}>
+                <span style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:"#C9A84C"}}>Stok Siyahısı</span>
+              </div>
+              <div style={{overflowX:"auto"}}>
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+                  <thead><tr style={{background:"#111"}}>
+                    {["Məhsul","Rəng","Maya","Satış","Başlanğıc","Cari Stok","Gələcək Qaz.","Maya Dəy.",""].map(h=><th key={h} style={S.th}>{h}</th>)}
+                  </tr></thead>
+                  <tbody>
+                    {computed.map((p,i)=>(
+                      <tr key={p.id} style={{borderTop:"1px solid #1a1a1a",background:i%2===0?"#161616":"#131313"}}>
+                        <td style={{...S.td,color:"#e5ddd0"}}>{p.name}</td>
+                        <td style={S.td}><span style={{display:"inline-flex",alignItems:"center",gap:5}}><span style={{width:8,height:8,borderRadius:"50%",background:cdot(p.color),display:"inline-block"}}/><span style={{color:"#aaa"}}>{p.color}</span></span></td>
+                        <td style={{...S.td,color:"#888"}}>{p.maya} ₼</td>
+                        <td style={{...S.td,color:"#C9A84C"}}>{p.satis} ₼</td>
+                        <td style={{...S.td,color:"#555"}}>{p.bas}</td>
+                        <td style={S.td}><span style={{background:p.cari>0?"#14532d33":"#7f1d1d33",color:p.cari>0?"#4ade80":"#f87171",padding:"2px 12px",borderRadius:20,fontWeight:600}}>{p.cari}</span></td>
+                        <td style={{...S.td,color:"#38bdf8"}}>{fmt(p.cari*(Number(p.satis)-Number(p.maya)))} ₼</td>
+                        <td style={{...S.td,color:"#a78bfa"}}>{fmt(p.cari*Number(p.maya))} ₼</td>
+                        <td style={S.td}><button onClick={()=>doDelete("products",p.id)} style={S.del}>Sil</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot><tr style={{borderTop:"2px solid #C9A84C33",background:"#111"}}>
+                    <td colSpan={6} style={{...S.td,color:"#C9A84C",fontWeight:600,fontSize:11,letterSpacing:1}}>CƏMİ</td>
+                    <td style={{...S.td,color:"#38bdf8",fontWeight:700}}>{fmt(futureGain)} ₼</td>
+                    <td style={{...S.td,color:"#a78bfa",fontWeight:700}}>{fmt(totalMaya)} ₼</td>
+                    <td/>
+                  </tr></tfoot>
+                </table>
+              </div>
+            </div>
+          </div>}
+
+          {/* EXPENSES */}
+          {tab==="expenses"&&<div>
+            <div style={{...S.card,padding:18,marginBottom:16}}>
+              <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:"#C9A84C",marginBottom:14}}>Yeni Xərc Əlavə Et</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+                <input placeholder="Xərc haqqında (Meta, Kargo...)" value={expForm.haqqinda} onChange={e=>setExpForm(f=>({...f,haqqinda:e.target.value}))} style={S.inp}/>
+                <input type="number" placeholder="Məbləğ (₼)" value={expForm.meblег} onChange={e=>setExpForm(f=>({...f,meblег:e.target.value}))} style={S.inp}/>
+              </div>
+              <button onClick={handleAddExpense} style={S.btn}>+ Xərc əlavə et</button>
+            </div>
+            <div style={S.card}>
+              <div style={{padding:"14px 16px",borderBottom:"1px solid #222",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:"#C9A84C"}}>Xərc Siyahısı</span>
+                <span style={{color:"#ef4444",fontWeight:600}}>Cəmi: {fmt(totalExpenses)} ₼</span>
+              </div>
+              <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+                <thead><tr style={{background:"#111"}}>
+                  {["Tarix","Xərc haqqında","Məbləğ",""].map(h=><th key={h} style={S.th}>{h}</th>)}
+                </tr></thead>
+                <tbody>
+                  {expenses.map((e,i)=>(
+                    <tr key={e.id} style={{borderTop:"1px solid #1a1a1a",background:i%2===0?"#161616":"#131313"}}>
+                      <td style={{...S.td,color:"#555"}}>{e.tarix}</td>
+                      <td style={{...S.td,color:"#e5ddd0"}}>{e.haqqinda}</td>
+                      <td style={{...S.td,color:"#ef4444",fontWeight:600}}>{fmt(e.meblег)} ₼</td>
+                      <td style={S.td}><button onClick={()=>doDelete("expenses",e.id)} style={S.del}>Sil</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>}
+
+        </>}
+      </main>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════
+// ROOT — auth state manager
+// ══════════════════════════════════════════
+function App() {
+  const [token, setToken] = useState(() => localStorage.getItem("glamoni_token"));
+  const [user,  setUser]  = useState(null);
+
+  const handleLogin = (t, u) => {
+    localStorage.setItem("glamoni_token", t);
+    setToken(t); setUser(u);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("glamoni_token");
+    setToken(null); setUser(null);
+  };
+
+  if (!token) return <LoginScreen onLogin={handleLogin}/>;
+  return <Dashboard token={token} user={user} onLogout={handleLogout}/>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
