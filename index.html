@@ -2,55 +2,438 @@
 <html lang="az">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>🍔 PitStop Masa</title>
+<title>PitStop</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:#0a0a0f;font-family:'Inter',system-ui,sans-serif;color:#f0ece4;overscroll-behavior:none}
+/* ─── RESET & BASE ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{
+  min-height:100dvh;
+  background:#080810;
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  color:#EEEAF2;
+  overscroll-behavior:none;
+  -webkit-font-smoothing:antialiased;
+}
 ::-webkit-scrollbar{display:none}
-input,select,button,textarea{font-family:inherit}
-select option{background:#16161f;color:#f0ece4}
+input,select,button,textarea{font-family:inherit;-webkit-appearance:none}
+select option{background:#131320;color:#EEEAF2}
+button{cursor:pointer}
 
-/* Animations */
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-@keyframes shimmer{0%{background-position:-200px 0}100%{background-position:calc(200px + 100%) 0}}
-@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(240,192,96,0.3)}50%{box-shadow:0 0 20px rgba(240,192,96,0.6)}}
+/* ─── DESIGN TOKENS ─── */
+:root{
+  /* Brand */
+  --gold:#F5C842;
+  --gold-dim:rgba(245,200,66,0.12);
+  --gold-border:rgba(245,200,66,0.25);
 
-.spin{animation:spin 1s linear infinite;display:inline-block}
-.sync-dot{animation:pulse 2s ease-in-out infinite}
-.fade-in{animation:fadeIn 0.25s ease forwards}
-.slide-up{animation:slideUp 0.3s cubic-bezier(0.32,0.72,0,1) forwards}
+  /* Semantic */
+  --success:#4ADE80;
+  --success-dim:rgba(74,222,128,0.1);
+  --success-border:rgba(74,222,128,0.25);
+  --danger:#F87171;
+  --danger-dim:rgba(248,113,113,0.1);
+  --danger-border:rgba(248,113,113,0.25);
+  --info:#60A5FA;
+  --info-dim:rgba(96,165,250,0.1);
+  --info-border:rgba(96,165,250,0.25);
+  --warning:#FB923C;
+  --warning-dim:rgba(251,146,60,0.1);
 
-/* Glassmorphism card */
-.glass-card{
-  background:linear-gradient(135deg,rgba(30,30,44,0.9),rgba(20,20,32,0.95));
-  border:1px solid rgba(255,255,255,0.07);
-  backdrop-filter:blur(12px);
-  border-radius:16px;
+  /* Surfaces */
+  --bg:#080810;
+  --surface-1:#0F0F1C;
+  --surface-2:#151524;
+  --surface-3:#1C1C2E;
+  --surface-hover:#202034;
+
+  /* Borders */
+  --border-1:rgba(255,255,255,0.06);
+  --border-2:rgba(255,255,255,0.10);
+
+  /* Text */
+  --text-primary:#EEEAF2;
+  --text-secondary:#9B98B0;
+  --text-tertiary:#5A5870;
+
+  /* Radius */
+  --r-sm:8px;
+  --r-md:12px;
+  --r-lg:16px;
+  --r-xl:20px;
+  --r-2xl:24px;
+
+  /* Shadows */
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.6);
+  --shadow-gold:0 4px 24px rgba(245,200,66,0.2);
 }
 
-/* Button press effect */
-button:active{transform:scale(0.97);transition:transform 0.08s}
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
 
-/* Table card hover */
-.table-card{transition:all 0.2s ease}
-.table-card:hover{transform:translateY(-2px)}
+.anim-fadeup{animation:fadeUp 0.22s cubic-bezier(0.16,1,0.3,1) both}
+.anim-slidup{animation:slideUp 0.32s cubic-bezier(0.32,0.72,0,1) both}
+.anim-fadein{animation:fadeIn 0.18s ease both}
+.anim-scalein{animation:scaleIn 0.2s cubic-bezier(0.16,1,0.3,1) both}
+.spin{animation:spin 0.8s linear infinite}
+.pulse{animation:pulse 2s ease-in-out infinite}
 
-/* Nav tab */
-.nav-tab{transition:all 0.15s ease}
+/* ─── COMPONENTS ─── */
 
-/* Status badge */
-.badge{border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600}
+/* Card */
+.card{
+  background:var(--surface-2);
+  border:1px solid var(--border-1);
+  border-radius:var(--r-lg);
+}
+.card-inset{
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border-1);
+  border-radius:var(--r-md);
+}
+
+/* Input */
+.inp{
+  width:100%;
+  background:var(--surface-1);
+  border:1.5px solid var(--border-1);
+  border-radius:var(--r-md);
+  color:var(--text-primary);
+  font-size:15px;
+  font-family:inherit;
+  padding:12px 14px;
+  outline:none;
+  transition:border-color 0.15s,background 0.15s;
+  -webkit-appearance:none;
+}
+.inp:focus{border-color:var(--gold-border);background:rgba(245,200,66,0.03)}
+.inp::placeholder{color:var(--text-tertiary)}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:none;border-radius:var(--r-md);
+  font-family:inherit;font-weight:600;font-size:14px;
+  cursor:pointer;transition:all 0.15s;
+  -webkit-appearance:none;
+}
+.btn:active{transform:scale(0.96)}
+
+.btn-primary{
+  background:var(--gold);color:#080810;
+  box-shadow:var(--shadow-gold);
+  padding:13px 20px;
+}
+.btn-primary:hover{background:#FDDB6D}
+
+.btn-secondary{
+  background:var(--surface-3);color:var(--text-primary);
+  border:1px solid var(--border-2);
+  padding:12px 18px;
+}
+.btn-secondary:hover{background:var(--surface-hover)}
+
+.btn-success{
+  background:var(--success-dim);color:var(--success);
+  border:1px solid var(--success-border);
+  padding:12px 18px;
+}
+.btn-danger{
+  background:var(--danger-dim);color:var(--danger);
+  border:1px solid var(--danger-border);
+  padding:12px 18px;
+}
+.btn-ghost{
+  background:transparent;color:var(--text-secondary);
+  border:1px solid var(--border-1);
+  padding:10px 14px;
+}
+.btn-icon{
+  background:var(--surface-3);color:var(--text-secondary);
+  border:1px solid var(--border-1);
+  border-radius:var(--r-sm);
+  padding:8px;width:36px;height:36px;
+}
+
+/* Badge */
+.badge{
+  display:inline-flex;align-items:center;
+  font-size:11px;font-weight:600;
+  border-radius:6px;padding:3px 8px;
+  white-space:nowrap;
+}
+.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+.badge-success{background:var(--success-dim);color:var(--success);border:1px solid var(--success-border)}
+.badge-danger{background:var(--danger-dim);color:var(--danger);border:1px solid var(--danger-border)}
+.badge-info{background:var(--info-dim);color:var(--info);border:1px solid var(--info-border)}
+.badge-muted{background:rgba(255,255,255,0.05);color:var(--text-secondary);border:1px solid var(--border-1)}
+
+/* Divider */
+.divider{height:1px;background:var(--border-1);margin:0}
+
+/* Stat card */
+.stat-card{
+  background:var(--surface-2);
+  border:1px solid var(--border-1);
+  border-radius:var(--r-md);
+  padding:14px;
+}
+
+/* Table card */
+.table-card{
+  background:var(--surface-2);
+  border:1.5px solid var(--border-1);
+  border-radius:var(--r-lg);
+  padding:14px 10px;
+  cursor:pointer;
+  transition:all 0.18s cubic-bezier(0.16,1,0.3,1);
+  position:relative;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:4px;min-height:88px;
+}
+.table-card:active{transform:scale(0.95)}
+.table-card.occupied{
+  background:linear-gradient(145deg,rgba(20,38,20,0.95),rgba(10,24,10,0.98));
+  border-color:rgba(74,222,128,0.3);
+  box-shadow:0 2px 16px rgba(74,222,128,0.08);
+}
+
+/* Bottom sheet overlay */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.7);
+  z-index:400;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.sheet{
+  background:var(--surface-1);
+  border-radius:var(--r-2xl) var(--r-2xl) 0 0;
+  border:1px solid var(--border-2);
+  border-bottom:none;
+  max-height:92dvh;
+  display:flex;flex-direction:column;
+}
+.sheet-handle{
+  width:36px;height:4px;
+  background:var(--border-2);
+  border-radius:2px;
+  margin:12px auto 14px;
+  flex-shrink:0;
+}
+.sheet-header{
+  padding:0 18px 14px;
+  border-bottom:1px solid var(--border-1);
+  flex-shrink:0;
+}
+.sheet-body{
+  flex:1;overflow-y:auto;
+  padding:16px 18px;
+}
+.sheet-footer{
+  padding:14px 18px 24px;
+  border-top:1px solid var(--border-1);
+  flex-shrink:0;
+}
+
+/* Nav */
+.nav-bar{
+  display:flex;
+  background:var(--surface-1);
+  border-bottom:1px solid var(--border-1);
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.nav-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:10px 6px;
+  background:transparent;border:none;
+  color:var(--text-tertiary);
+  font-size:10px;font-weight:500;
+  font-family:inherit;cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all 0.15s;white-space:nowrap;
+  min-width:56px;
+}
+.nav-tab.active{
+  color:var(--gold);
+  border-bottom-color:var(--gold);
+}
+.nav-tab-icon{font-size:18px;line-height:1}
+
+/* Section label */
+.section-label{
+  font-size:11px;font-weight:700;
+  color:var(--text-tertiary);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:10px;
+}
+
+/* Order item */
+.order-item{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;
+  background:var(--surface-2);
+  border:1px solid var(--border-1);
+  border-radius:var(--r-md);
+  margin-bottom:7px;
+}
+
+/* Price display */
+.price{
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:'tnum';
+}
+
+/* Page */
+.page{
+  min-height:100dvh;
+  max-width:520px;
+  margin:0 auto;
+  position:relative;
+}
+
+/* Header */
+.page-header{
+  background:rgba(8,8,16,0.92);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border-1);
+  position:sticky;top:0;z-index:100;
+}
+
+/* Kassa warning */
+.kassa-warning{
+  background:linear-gradient(135deg,rgba(251,146,60,0.12),rgba(251,146,60,0.06));
+  border:1px solid rgba(251,146,60,0.3);
+  border-radius:var(--r-md);
+  padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  margin:12px 14px 0;
+}
+
+/* Shimmer loading */
+.shimmer{
+  background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 50%,var(--surface-2) 75%);
+  background-size:400px 100%;
+  animation:shimmer 1.4s ease-in-out infinite;
+}
+
+/* FAB */
+.fab{
+  position:fixed;
+  width:56px;height:56px;
+  border-radius:50%;
+  background:var(--gold);
+  color:#080810;
+  font-size:28px;font-weight:300;
+  border:none;cursor:pointer;
+  box-shadow:var(--shadow-gold);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+  z-index:200;
+}
+.fab:active{transform:scale(0.92)}
+
+/* Scroll area */
+.scroll-area{overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* Qty stepper */
+.stepper{
+  display:flex;align-items:center;gap:0;
+  background:var(--surface-1);
+  border:1.5px solid var(--border-2);
+  border-radius:var(--r-md);
+  overflow:hidden;
+}
+.stepper-btn{
+  background:transparent;border:none;
+  color:var(--text-primary);
+  width:38px;height:38px;
+  font-size:20px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.1s;
+}
+.stepper-btn:active{background:var(--surface-3)}
+.stepper-val{
+  min-width:36px;text-align:center;
+  font-size:15px;font-weight:700;
+  color:var(--text-primary);
+  padding:0 4px;
+}
+
+/* Chip filter */
+.chip{
+  display:inline-flex;align-items:center;
+  padding:6px 13px;
+  border-radius:20px;
+  font-size:12px;font-weight:500;
+  white-space:nowrap;cursor:pointer;
+  border:1px solid var(--border-1);
+  background:transparent;
+  color:var(--text-secondary);
+  font-family:inherit;
+  transition:all 0.15s;
+}
+.chip.active{
+  background:var(--gold-dim);
+  border-color:var(--gold-border);
+  color:var(--gold);
+  font-weight:600;
+}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  background:var(--surface-3);
+  border:1px solid var(--border-2);
+  border-radius:var(--r-md);
+  padding:10px 16px;
+  font-size:13px;font-weight:500;
+  white-space:nowrap;
+  z-index:500;
+  box-shadow:var(--shadow-md);
+  animation:fadeUp 0.2s ease both;
+}
+
+/* Sync indicator */
+.sync{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:500;
+}
+.sync-dot{
+  width:6px;height:6px;border-radius:50%;
+}
+
+/* Kassa close card */
+.kassa-diff-positive{color:var(--success)}
+.kassa-diff-negative{color:var(--danger)}
+.kassa-diff-zero{color:var(--text-secondary)}
+
+@media(min-width:521px){
+  .page{border-left:1px solid var(--border-1);border-right:1px solid var(--border-1)}
+}
 </style>
 </head>
 <body>
@@ -58,26 +441,35 @@ button:active{transform:scale(0.97);transition:transform 0.08s}
 <script type="text/babel">
 const {useState,useEffect,useRef,useCallback,useMemo} = React;
 
-const SUPABASE_URL = "https://hgmldkdocqraeaoecybr.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhnbWxka2RvY3FyYWVhb2VjeWJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzk2NTIsImV4cCI6MjA5NTcxNTY1Mn0.I7dggPbS5LfJWF_YvKi0QnL7fUMkY5dcwGVgE5O_AXc";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+/* ─── SUPABASE ─── */
+const SB_URL="https://hgmldkdocqraeaoecybr.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhnbWxka2RvY3FyYWVhb2VjeWJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzk2NTIsImV4cCI6MjA5NTcxNTY1Mn0.I7dggPbS5LfJWF_YvKi0QnL7fUMkY5dcwGVgE5O_AXc";
+const sb=window.supabase.createClient(SB_URL,SB_KEY);
 
-const INDOOR = Array.from({length:15},(_,i)=>({id:i+1,loc:"içəri"}));
-const OUTDOOR = Array.from({length:15},(_,i)=>({id:i+16,loc:"çöl"}));
-const ALL_TABLES = [...INDOOR,...OUTDOOR];
-const ALL_CATS = ["Hamısı","İçki","Yemək","Şirniyyat","Set","Əlavə"];
+async function dbGet(k){try{const{data,error}=await sb.from("app_state").select("value").eq("key",k).single();if(error)return null;return data?.value??null;}catch{return null;}}
+async function dbSet(k,v){try{await sb.from("app_state").upsert({key:k,value:v,updated_at:new Date().toISOString()});}catch(e){console.error(e);}}
 
-// Stock rules: when item name matches, which stock items to deduct
-// burger: deduct 1 "Baton çörək" (or "Burger çörəyi")
-// Set 11: deduct 1 Pepsi 1L, 2 Tost
-// Set 16: deduct 1 Pepsi 2.25L (or closest Pepsi 2L)
-const STOCK_RULES = [
-  { match: (name) => name.toLowerCase().includes("burger"), items: [{ stockName:"Burger çörəyi", qty:1 }] },
-  { match: (name) => name.toLowerCase() === "set 11", items: [{ stockName:"Pepsi 1L", qty:1 },{ stockName:"Tost", qty:2 }] },
-  { match: (name) => name.toLowerCase() === "set 16", items: [{ stockName:"Pepsi 2.25L", qty:1, fallbackNames:["Pepsi 2L"] }] },
-];
+/* ─── CONSTANTS ─── */
+const INDOOR=Array.from({length:15},(_,i)=>({id:i+1,loc:"içəri"}));
+const OUTDOOR=Array.from({length:17},(_,i)=>({id:i+16,loc:"çöl"}));
+const ALL_TABLES=[...INDOOR,...OUTDOOR];
+const ALL_CATS=["Hamısı","İçki","Yemək","Şirniyyat","Set","Əlavə"];
+const EXP_CATS=["Məhsul alışı","Kommunal","İşçi maaşı","Texniki xərc","Reklam","Digər","Kassa çıxarışı"];
 
-const DEFAULT_MENU = [
+/* ─── DATE HELPERS ─── */
+function getWorkDate(){
+  const n=new Date();
+  if(n.getHours()<6){const p=new Date(n);p.setDate(p.getDate()-1);return p.toLocaleDateString("az-AZ",{day:"2-digit",month:"2-digit",year:"numeric"});}
+  return n.toLocaleDateString("az-AZ",{day:"2-digit",month:"2-digit",year:"numeric"});
+}
+function timeStr(){return new Date().toLocaleTimeString("az-AZ",{hour:"2-digit",minute:"2-digit"});}
+function initTables(){return ALL_TABLES.reduce((a,t)=>{a[t.id]={orders:[]};return a;},{});}
+
+/* ─── LOCAL STORAGE ─── */
+const ls={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
+
+/* ─── DEFAULT DATA ─── */
+const DEFAULT_MENU=[
   {id:1,name:"Çay",price:2.50,cat:"İçki"},
   {id:2,name:"Şokolad Qara",price:5.00,cat:"Şirniyyat"},
   {id:3,name:"Şokolad Ağ",price:6.00,cat:"Şirniyyat"},
@@ -100,12 +492,13 @@ const DEFAULT_MENU = [
   {id:20,name:"Burger (Katlet)",price:3.00,cat:"Yemək"},
   {id:21,name:"Burger (Sosiska)",price:3.00,cat:"Yemək"},
   {id:22,name:"Tost",price:2.00,cat:"Yemək"},
-  {id:23,name:"Set 11",price:11.00,cat:"Set",components:[{stockName:"Pepsi 1L",qty:1},{stockName:"Tost",qty:2}]},
-  {id:24,name:"Set 16",price:16.00,cat:"Set",components:[{stockName:"Pepsi 2.25L",qty:1}]},
+  {id:23,name:"Set 11",price:11.00,cat:"Set"},
+  {id:24,name:"Set 16",price:16.00,cat:"Set"},
   {id:25,name:"Limon (əlavə)",price:0.50,cat:"Əlavə"},
+  {id:26,name:"Limonad",price:6.00,cat:"İçki"},
 ];
 
-const DEFAULT_STOCK = [
+const DEFAULT_STOCK=[
   {id:1,name:"Un",unit:"kq",qty:25,min:10},
   {id:2,name:"Pendir",unit:"kq",qty:8,min:3},
   {id:3,name:"Ət (qiymə)",unit:"kq",qty:12,min:5},
@@ -128,268 +521,191 @@ const DEFAULT_STOCK = [
   {id:20,name:"Snickers",unit:"ədəd",qty:20,min:5},
 ];
 
-// Default sets config (for set management)
-const DEFAULT_SETS_CONFIG = [
-  { id:23, name:"Set 11", drinkOptions:["Pepsi 1L","Kola 1L","Sprite 1L","Limonad 1L"], defaultDrink:"Pepsi 1L", extras:["Tost","Tost"] },
-  { id:24, name:"Set 16", drinkOptions:["Pepsi 2.25L","Pepsi 2L","Kola 2L","Kola 2.5L","Sprite 2L"], defaultDrink:"Pepsi 2.25L", extras:[] },
+const DEFAULT_SETS=[
+  {id:23,name:"Set 11",drinkOptions:["Pepsi 1L","Kola 1L","Sprite 1L","Limonad 1L"],defaultDrink:"Pepsi 1L",extras:["Tost","Tost"]},
+  {id:24,name:"Set 16",drinkOptions:["Pepsi 2.25L","Pepsi 2L","Kola 2L","Kola 2.5L","Sprite 2L"],defaultDrink:"Pepsi 2.25L",extras:[]},
 ];
 
-const DEFAULT_CREDS = {admin:"admin123", waiter:"ofisiant123"};
+const DEFAULT_CREDS={admin:"admin123",waiter:"ofisiant123"};
 
-// Work date logic: if current time is before 06:00, use previous day as work date
-function getWorkDate(){
-  const now = new Date();
-  if(now.getHours() < 6){
-    const prev = new Date(now);
-    prev.setDate(prev.getDate()-1);
-    return prev.toLocaleDateString("az-AZ",{day:"2-digit",month:"2-digit",year:"numeric"});
-  }
-  return now.toLocaleDateString("az-AZ",{day:"2-digit",month:"2-digit",year:"numeric"});
+/* ─── STOCK RULES ─── */
+function applyStock(itemName,qty,stockArr){
+  let s=[...stockArr];
+  const n=itemName.toLowerCase().trim();
+  if(n.includes("burger"))
+    s=s.map(x=>x.name.toLowerCase().includes("baton")||x.name.toLowerCase().includes("burger çörəyi")?{...x,qty:Math.max(0,x.qty-qty)}:x);
+  if(n==="set 11")
+    s=s.map(x=>{const xn=x.name.toLowerCase();if(xn==="pepsi 1l")return{...x,qty:Math.max(0,x.qty-qty)};if(xn==="tost")return{...x,qty:Math.max(0,x.qty-2*qty)};return x;});
+  if(n==="set 16")
+    s=s.map(x=>{const xn=x.name.toLowerCase();if(xn==="pepsi 2.25l")return{...x,qty:Math.max(0,x.qty-qty)};return x;});
+  if(n==="limonad")
+    s=s.map(x=>{const xn=x.name.toLowerCase();if(xn==="sprite 1l")return{...x,qty:Math.max(0,x.qty-qty)};return x;});
+  return s;
+}
+function reverseStock(itemName,qty,stockArr){
+  let s=[...stockArr];
+  const n=itemName.toLowerCase().trim();
+  if(n.includes("burger"))
+    s=s.map(x=>x.name.toLowerCase().includes("baton")||x.name.toLowerCase().includes("burger çörəyi")?{...x,qty:x.qty+qty}:x);
+  if(n==="set 11")
+    s=s.map(x=>{const xn=x.name.toLowerCase();if(xn==="pepsi 1l")return{...x,qty:x.qty+qty};if(xn==="tost")return{...x,qty:x.qty+2*qty};return x;});
+  if(n==="set 16")
+    s=s.map(x=>{const xn=x.name.toLowerCase();if(xn==="pepsi 2.25l")return{...x,qty:x.qty+qty};return x;});
+  if(n==="limonad")
+    s=s.map(x=>{const xn=x.name.toLowerCase();if(xn==="sprite 1l")return{...x,qty:x.qty+qty};return x;});
+  return s;
 }
 
-function todayStr(){ return getWorkDate(); }
-function timeStr(){return new Date().toLocaleTimeString("az-AZ",{hour:"2-digit",minute:"2-digit"});}
-function initTables(){return ALL_TABLES.reduce((a,t)=>{a[t.id]={orders:[]};return a;},{});}
-
-const ls = {
-  get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}},
-  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+/* ─── SVG ICONS ─── */
+const Icon={
+  table:({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="4" rx="1"/><line x1="5" y1="7" x2="5" y2="21"/><line x1="19" y1="7" x2="19" y2="21"/><line x1="5" y1="14" x2="19" y2="14"/></svg>,
+  chart:({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>,
+  box:({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>,
+  cash:({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>,
+  settings:({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  plus:({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  x:({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  check:({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  edit:({size=15,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+  trash:({size=15,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
+  back:({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
+  warning:({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  moon:({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+  lock:({size=36,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  sync:({size=14,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+  clipboard:({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>,
 };
 
-// Design tokens
-const C={
-  bg:"#0a0a0f",
-  card:"#16161f",
-  cardHover:"#1c1c28",
-  border:"#252535",
-  borderLight:"rgba(255,255,255,0.06)",
-  gold:"#f0c060",
-  goldDim:"#a07828",
-  green:"#56cc7a",
-  greenDim:"#1a4a2a",
-  blue:"#60a8f0",
-  blueDim:"#1a2a4a",
-  red:"#e05555",
-  redDim:"#3a1818",
-  muted:"#6b6b8a",
-  text:"#f0ece4",
-  textSub:"#9090aa",
-  dark:"#0f0f18",
-  surface:"#1a1a26",
-  accent:"#7c5af0",
-};
-
-const inp = {
-  background:"rgba(255,255,255,0.04)",
-  border:`1px solid ${C.border}`,
-  borderRadius:12,
-  color:C.text,
-  fontSize:14,
-  padding:"12px 14px",
-  outline:"none",
-  width:"100%",
-  boxSizing:"border-box",
-  transition:"border-color 0.15s"
-};
-
-const btn = (bg,color,extra={})=>({
-  background:bg,
-  border:"none",
-  borderRadius:12,
-  color,
-  fontWeight:600,
-  cursor:"pointer",
-  fontFamily:"inherit",
-  transition:"all 0.15s",
-  ...extra
-});
-
-// ── SUPABASE HELPERS ──
-async function dbGet(key) {
-  try {
-    const {data,error} = await supabase.from("app_state").select("value").eq("key",key).single();
-    if(error) return null;
-    return data?.value ?? null;
-  } catch { return null; }
-}
-async function dbSet(key, value) {
-  try {
-    await supabase.from("app_state").upsert({key, value, updated_at: new Date().toISOString()});
-  } catch(e) { console.error("dbSet error",e); }
+/* ─── SYNC DOT ─── */
+function SyncDot({status}){
+  const c=status==="error"?"var(--danger)":status==="syncing"?"var(--gold)":"var(--success)";
+  const label=status==="syncing"?"Sinxron":status==="error"?"Xəta":"Canlı";
+  return(
+    <div className="sync">
+      <div className={`sync-dot${status==="syncing"?" pulse":""}`} style={{background:c}}/>
+      <span style={{color:"var(--text-tertiary)"}}>{label}</span>
+    </div>
+  );
 }
 
-// ── STOCK DEDUCTION HELPER ──
-function applyStockRules(itemName, itemQty, stockArr) {
-  let newStock = [...stockArr];
-  const nameLower = itemName.toLowerCase().trim();
-
-  // Burger rule
-  if(nameLower.includes("burger")){
-    newStock = newStock.map(s=>{
-      if(s.name.toLowerCase().includes("baton çörək")||s.name.toLowerCase().includes("burger çörəyi")){
-        return {...s, qty:Math.max(0, s.qty - itemQty)};
-      }
-      return s;
-    });
-  }
-  // Set 11 rule
-  if(nameLower === "set 11"){
-    newStock = newStock.map(s=>{
-      const sn = s.name.toLowerCase();
-      if(sn === "pepsi 1l") return {...s, qty:Math.max(0, s.qty - itemQty)};
-      if(sn === "tost") return {...s, qty:Math.max(0, s.qty - 2*itemQty)};
-      return s;
-    });
-  }
-  // Set 16 rule
-  if(nameLower === "set 16"){
-    newStock = newStock.map(s=>{
-      const sn = s.name.toLowerCase();
-      if(sn === "pepsi 2.25l") return {...s, qty:Math.max(0, s.qty - itemQty)};
-      return s;
-    });
-  }
-  return newStock;
+/* ─── TOAST ─── */
+function Toast({msg,onDone}){
+  useEffect(()=>{const t=setTimeout(onDone,2200);return()=>clearTimeout(t);},[]);
+  return <div className="toast">{msg}</div>;
 }
 
-// Reverse stock rules on cancel
-function reverseStockRules(itemName, itemQty, stockArr) {
-  let newStock = [...stockArr];
-  const nameLower = itemName.toLowerCase().trim();
-  if(nameLower.includes("burger")){
-    newStock = newStock.map(s=>{
-      if(s.name.toLowerCase().includes("baton çörək")||s.name.toLowerCase().includes("burger çörəyi")){
-        return {...s, qty: s.qty + itemQty};
-      }
-      return s;
-    });
-  }
-  if(nameLower === "set 11"){
-    newStock = newStock.map(s=>{
-      const sn = s.name.toLowerCase();
-      if(sn === "pepsi 1l") return {...s, qty: s.qty + itemQty};
-      if(sn === "tost") return {...s, qty: s.qty + 2*itemQty};
-      return s;
-    });
-  }
-  if(nameLower === "set 16"){
-    newStock = newStock.map(s=>{
-      const sn = s.name.toLowerCase();
-      if(sn === "pepsi 2.25l") return {...s, qty: s.qty + itemQty};
-      return s;
-    });
-  }
-  return newStock;
-}
-
-// ── LOGIN SCREEN ──
-function LoginScreen({onLogin, creds}){
+/* ─── LOGIN ─── */
+function LoginScreen({onLogin,creds}){
   const [pass,setPass]=useState("");
   const [err,setErr]=useState("");
+  const [show,setShow]=useState(false);
 
   function tryLogin(){
-    if(pass===creds.admin){onLogin("admin");setErr("");}
-    else if(pass===creds.waiter){onLogin("waiter");setErr("");}
-    else{setErr("Şifrə yanlışdır");setPass("");}
+    if(pass===creds.admin){onLogin("admin");return;}
+    if(pass===creds.waiter){onLogin("waiter");return;}
+    setErr("Şifrə yanlışdır");setPass("");
   }
 
   return(
-    <div style={{minHeight:"100vh",background:`radial-gradient(ellipse at 50% 0%, rgba(240,192,96,0.08) 0%, ${C.bg} 60%)`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24}}>
-      <div style={{width:"100%",maxWidth:340}}>
+    <div style={{minHeight:"100dvh",background:"var(--bg)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24,
+      background:"radial-gradient(ellipse 80% 60% at 50% -10%,rgba(245,200,66,0.07) 0%,var(--bg) 70%)"}}>
+      <div style={{width:"100%",maxWidth:340}} className="anim-fadeup">
+        {/* Logo */}
         <div style={{textAlign:"center",marginBottom:40}}>
-          <div style={{fontSize:60,marginBottom:16,filter:"drop-shadow(0 0 20px rgba(240,192,96,0.5))"}}>🍔</div>
-          <div style={{fontSize:26,fontWeight:800,color:C.text,letterSpacing:-0.5}}>PitStop</div>
-          <div style={{fontSize:14,color:C.muted,marginTop:4}}>Masa İdarəetmə Sistemi</div>
+          <div style={{width:72,height:72,background:"var(--gold-dim)",border:"1px solid var(--gold-border)",borderRadius:20,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:36}}>
+            🍔
+          </div>
+          <div style={{fontSize:26,fontWeight:800,color:"var(--text-primary)",letterSpacing:-0.5}}>PitStop</div>
+          <div style={{fontSize:13,color:"var(--text-tertiary)",marginTop:4}}>Masa İdarəetmə Sistemi</div>
         </div>
-        <div className="glass-card" style={{padding:28}}>
-          <div style={{fontSize:12,color:C.muted,marginBottom:8,fontWeight:500,textTransform:"uppercase",letterSpacing:0.8}}>Şifrə</div>
-          <input style={{...inp,marginBottom:16,fontSize:16,letterSpacing:4,background:"rgba(255,255,255,0.05)"}}
-            type="password" placeholder="••••••••" value={pass}
-            onChange={e=>{setPass(e.target.value);setErr("");}}
-            onKeyDown={e=>e.key==="Enter"&&tryLogin()} autoFocus/>
-          {err&&<div style={{color:C.red,fontSize:13,marginBottom:12,textAlign:"center",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-            <span>⚠</span> {err}
+        {/* Card */}
+        <div className="card" style={{padding:24}}>
+          <div style={{fontSize:11,color:"var(--text-tertiary)",fontWeight:600,textTransform:"uppercase",letterSpacing:0.8,marginBottom:8}}>Şifrə</div>
+          <div style={{position:"relative",marginBottom:err?10:16}}>
+            <input className="inp" type={show?"text":"password"} placeholder="Şifrəni daxil edin"
+              value={pass} onChange={e=>{setPass(e.target.value);setErr("");}}
+              onKeyDown={e=>e.key==="Enter"&&tryLogin()}
+              style={{paddingRight:44,fontSize:16,letterSpacing:show?0:3}}
+              autoFocus/>
+            <button onClick={()=>setShow(v=>!v)}
+              style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"var(--text-tertiary)",cursor:"pointer",fontSize:13,fontWeight:500}}>
+              {show?"Gizlə":"Göstər"}
+            </button>
+          </div>
+          {err&&<div style={{display:"flex",alignItems:"center",gap:6,color:"var(--danger)",fontSize:13,marginBottom:12}}>
+            <Icon.warning size={14} color="var(--danger)"/>{err}
           </div>}
-          <button onClick={tryLogin} style={{...btn(`linear-gradient(135deg,${C.gold},#d4a030)`,"#0a0a0f"),width:"100%",padding:"14px",fontSize:15,fontWeight:700,borderRadius:14}}>
+          <button className="btn btn-primary" style={{width:"100%",fontSize:15,padding:14,borderRadius:"var(--r-md)"}} onClick={tryLogin}>
             Daxil ol
           </button>
         </div>
-        <div style={{textAlign:"center",marginTop:20,fontSize:12,color:"#333345"}}>
-          Admin və ofisiant üçün ayrı şifrələr mövcuddur
-        </div>
+        <p style={{textAlign:"center",marginTop:20,fontSize:12,color:"var(--text-tertiary)"}}>Admin və ofisiant üçün ayrı şifrələr</p>
       </div>
     </div>
   );
 }
 
-// ── LOADING SCREEN ──
+/* ─── LOADING ─── */
 function LoadingScreen(){
   return(
-    <div style={{minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:16}}>
-      <div style={{fontSize:52,filter:"drop-shadow(0 0 20px rgba(240,192,96,0.4))"}}>🍔</div>
-      <div style={{fontSize:18,fontWeight:700,color:C.gold}}>PitStop</div>
-      <div style={{fontSize:13,color:C.muted}}>Supabase ilə bağlanılır...</div>
-      <div className="spin" style={{fontSize:22,marginTop:8,color:C.gold}}>◌</div>
+    <div style={{minHeight:"100dvh",background:"var(--bg)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:14}}>
+      <div style={{fontSize:48}}>🍔</div>
+      <div style={{fontSize:16,fontWeight:700,color:"var(--text-primary)"}}>PitStop</div>
+      <div style={{display:"flex",alignItems:"center",gap:8,color:"var(--text-tertiary)",fontSize:13}}>
+        <div className="spin"><Icon.sync size={13} color="var(--gold)"/></div>
+        Supabase ilə bağlanılır...
+      </div>
     </div>
   );
 }
 
-// ── MENU ROW ──
-function MenuRow({item, onAdd, stock, setsConfig}){
+/* ─── MENU ROW ─── */
+function MenuRow({item,onAdd,stock,setsConfig}){
   const [qty,setQty]=useState(1);
   const [note,setNote]=useState("");
   const [open,setOpen]=useState(false);
-  const [selectedDrink,setSelectedDrink]=useState(null);
+  const [drink,setDrink]=useState(null);
 
-  const stockItem = stock ? stock.find(s=>s.name.toLowerCase().trim()===item.name.toLowerCase().trim()) : null;
-  const outOfStock = stockItem && stockItem.qty===0;
+  const si=stock?.find(s=>s.name.toLowerCase()===item.name.toLowerCase());
+  const oos=si&&si.qty===0;
+  const sc=setsConfig?.find(s=>s.name.toLowerCase()===item.name.toLowerCase());
 
-  // Check if this item has drink options (sets)
-  const setConf = setsConfig ? setsConfig.find(sc=>sc.name.toLowerCase()===item.name.toLowerCase()) : null;
-
-  useEffect(()=>{
-    if(setConf && !selectedDrink) setSelectedDrink(setConf.defaultDrink);
-  },[setConf]);
+  useEffect(()=>{if(sc&&!drink)setDrink(sc.defaultDrink);},[sc]);
 
   function handleAdd(){
-    onAdd(item, qty, note, selectedDrink);
-    setQty(1); setNote(""); setOpen(false);
+    const n=sc&&drink?(note?`${note} | İçki: ${drink}`:`İçki: ${drink}`):note;
+    onAdd(item,qty,n,drink);
+    setQty(1);setNote("");setOpen(false);
   }
 
   return(
-    <div style={{marginBottom:8,opacity:outOfStock?0.5:1}} className="fade-in">
-      <div onClick={()=>!outOfStock&&setOpen(!open)}
+    <div style={{marginBottom:6,opacity:oos?0.45:1}}>
+      <div onClick={()=>!oos&&setOpen(v=>!v)}
         style={{display:"flex",alignItems:"center",padding:"12px 14px",
-          background:open?"#1e1e30":C.card,
-          borderRadius:open?"14px 14px 0 0":14,
-          border:`1px solid ${open?C.border+"80":C.border}`,
-          cursor:outOfStock?"not-allowed":"pointer",gap:10,
-          transition:"all 0.15s"}}>
-        <div style={{flex:1}}>
-          <div style={{fontSize:14,fontWeight:500}}>{item.name}
-            {outOfStock&&<span style={{fontSize:11,color:C.red,marginLeft:6,fontWeight:400}}>· bitmişdir</span>}
+          background:open?"var(--surface-3)":"var(--surface-2)",
+          borderRadius:open?"var(--r-md) var(--r-md) 0 0":"var(--r-md)",
+          border:"1px solid var(--border-1)",
+          cursor:oos?"not-allowed":"pointer",gap:10,transition:"background 0.15s"}}>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:14,fontWeight:500,color:"var(--text-primary)",display:"flex",alignItems:"center",gap:6}}>
+            {item.name}
+            {oos&&<span style={{fontSize:11,color:"var(--danger)",fontWeight:400}}>bitmişdir</span>}
           </div>
-          {setConf&&<div style={{fontSize:11,color:C.muted,marginTop:2}}>Set məhsulu</div>}
+          {sc&&<div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:1}}>Set məhsulu</div>}
         </div>
-        {stockItem&&!outOfStock&&(
-          <span style={{fontSize:10,color:C.green,background:"rgba(86,204,122,0.1)",borderRadius:8,padding:"2px 8px",border:"1px solid rgba(86,204,122,0.2)"}}>
-            {stockItem.qty} {stockItem.unit}
-          </span>
-        )}
-        <div style={{fontSize:14,fontWeight:700,color:C.gold}}>{item.price.toFixed(2)}₼</div>
-        <span style={{color:C.muted,fontSize:10,transform:open?"rotate(180deg)":"none",transition:"transform 0.2s"}}>▼</span>
+        {si&&!oos&&<span className="badge badge-success" style={{fontSize:10}}>{si.qty} {si.unit}</span>}
+        <span className="price" style={{fontSize:14,fontWeight:700,color:"var(--gold)",flexShrink:0}}>{item.price.toFixed(2)}₼</span>
+        <span style={{color:"var(--text-tertiary)",fontSize:10,transition:"transform 0.2s",transform:open?"rotate(180deg)":"none",flexShrink:0}}>▾</span>
       </div>
       {open&&(
-        <div style={{background:C.dark,borderRadius:"0 0 14px 14px",padding:"12px 14px",border:`1px solid ${C.border}`,borderTop:"none"}}>
-          {setConf && setConf.drinkOptions.length>0 && (
+        <div style={{background:"var(--surface-1)",borderRadius:"0 0 var(--r-md) var(--r-md)",padding:"12px 14px",border:"1px solid var(--border-1)",borderTop:"none"}} className="anim-fadeup">
+          {sc&&sc.drinkOptions.length>0&&(
             <div style={{marginBottom:10}}>
-              <div style={{fontSize:11,color:C.muted,marginBottom:6,fontWeight:500}}>İçki seçimi</div>
+              <div style={{fontSize:11,color:"var(--text-tertiary)",fontWeight:600,textTransform:"uppercase",letterSpacing:0.8,marginBottom:8}}>İçki seçimi</div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                {setConf.drinkOptions.map(d=>(
-                  <button key={d} onClick={()=>setSelectedDrink(d)}
-                    style={{...btn(selectedDrink===d?C.gold:"rgba(255,255,255,0.05)",selectedDrink===d?"#0a0a0f":C.textSub),
-                      fontSize:11,padding:"5px 10px",borderRadius:8,
-                      border:`1px solid ${selectedDrink===d?C.gold:C.border}`}}>
+                {sc.drinkOptions.map(d=>(
+                  <button key={d} onClick={()=>setDrink(d)}
+                    className={`chip${drink===d?" active":""}`} style={{fontSize:12}}>
                     {d}
                   </button>
                 ))}
@@ -397,17 +713,16 @@ function MenuRow({item, onAdd, stock, setsConfig}){
             </div>
           )}
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-            <button onClick={()=>setQty(q=>Math.max(1,q-1))}
-              style={{background:"rgba(255,255,255,0.06)",border:`1px solid ${C.border}`,borderRadius:10,color:C.text,width:36,height:36,fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
-            <span style={{fontWeight:700,fontSize:16,minWidth:28,textAlign:"center"}}>{qty}</span>
-            <button onClick={()=>setQty(q=>q+1)}
-              style={{background:"rgba(255,255,255,0.06)",border:`1px solid ${C.border}`,borderRadius:10,color:C.text,width:36,height:36,fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
-            <input style={{flex:1,...inp,padding:"9px 12px",fontSize:13}} placeholder="Qeyd..." value={note} onChange={e=>setNote(e.target.value)}/>
+            <div className="stepper">
+              <button className="stepper-btn" onClick={()=>setQty(q=>Math.max(1,q-1))}>−</button>
+              <span className="stepper-val price">{qty}</span>
+              <button className="stepper-btn" onClick={()=>setQty(q=>q+1)}>+</button>
+            </div>
+            <input className="inp" style={{flex:1,padding:"9px 12px",fontSize:13}} placeholder="Qeyd (ixtiyari)..." value={note} onChange={e=>setNote(e.target.value)}/>
           </div>
-          <button onClick={handleAdd}
-            style={{width:"100%",background:`linear-gradient(135deg,#2d7a3d,#1f5c2d)`,border:"none",borderRadius:10,color:"#fff",fontWeight:700,fontSize:14,padding:"11px",cursor:"pointer"}}>
-            Əlavə et — {(item.price*qty).toFixed(2)}₼
-            {setConf&&selectedDrink&&<span style={{fontWeight:400,fontSize:12,opacity:0.8}}> ({selectedDrink})</span>}
+          <button className="btn btn-success" style={{width:"100%",justifyContent:"space-between",padding:"11px 14px"}} onClick={handleAdd}>
+            <span>Əlavə et</span>
+            <span className="price" style={{fontWeight:800}}>{(item.price*qty).toFixed(2)}₼</span>
           </button>
         </div>
       )}
@@ -415,19 +730,138 @@ function MenuRow({item, onAdd, stock, setsConfig}){
   );
 }
 
-// ── MAIN APP ──
+/* ─── KASSA CLOSE MODAL ─── */
+function KassaCloseModal({workDate,todayTotal,todayCash,todayExp,kassaStart,onClose}){
+  const expected=(kassaStart||0)+todayCash-expenses2cash(todayExp);
+  // net cash = kassa start + nağd gəlir - nağd xərclər
+  const [physical,setPhysical]=useState("");
+  const [withdraw,setWithdraw]=useState("");
+  const [note,setNote]=useState("");
+  const [done,setDone]=useState(false);
+  const [result,setResult]=useState(null);
+
+  function handleClose(){
+    const phys=parseFloat(physical)||0;
+    const with_=parseFloat(withdraw)||0;
+    const nextDay=phys-with_;
+    const diff=phys-expected;
+    setResult({phys,with_,nextDay,diff});
+    setDone(true);
+    onClose({physical:phys,withdrawn:with_,nextStart:nextDay,diff,date:workDate,note});
+  }
+
+  if(done&&result){
+    const diffColor=result.diff>0?"kassa-diff-positive":result.diff<0?"kassa-diff-negative":"kassa-diff-zero";
+    return(
+      <div className="overlay" onClick={e=>e.target===e.currentTarget&&onClose(null)}>
+        <div className="sheet anim-slidup">
+          <div className="sheet-handle"/>
+          <div className="sheet-header">
+            <div style={{fontSize:16,fontWeight:700}}>Gün Bağlandı ✓</div>
+          </div>
+          <div className="sheet-body">
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
+              {[
+                ["Gözlənilən",`${expected.toFixed(2)}₼`,"var(--text-secondary)"],
+                ["Fiziki",`${result.phys.toFixed(2)}₼`,"var(--text-primary)"],
+                ["Götürüldü",`${result.with_.toFixed(2)}₼`,"var(--warning)"],
+                ["Sabaha qalan",`${result.nextDay.toFixed(2)}₼`,"var(--gold)"],
+              ].map(([l,v,c])=>(
+                <div key={l} className="stat-card">
+                  <div style={{fontSize:11,color:"var(--text-tertiary)"}}>{l}</div>
+                  <div className={`price`} style={{fontSize:18,fontWeight:800,color:c,marginTop:4}}>{v}</div>
+                </div>
+              ))}
+            </div>
+            <div className="stat-card" style={{marginBottom:4,background:result.diff===0?"var(--surface-2)":result.diff>0?"var(--success-dim)":"var(--danger-dim)",borderColor:result.diff===0?"var(--border-1)":result.diff>0?"var(--success-border)":"var(--danger-border)"}}>
+              <div style={{fontSize:12,color:"var(--text-tertiary)"}}>Kassa fərqi</div>
+              <div className={`price ${diffColor}`} style={{fontSize:22,fontWeight:900,marginTop:4}}>
+                {result.diff>0?"+":""}{result.diff.toFixed(2)}₼
+              </div>
+              <div style={{fontSize:12,color:"var(--text-tertiary)",marginTop:2}}>
+                {result.diff===0?"Kassa dəqiq balanslaşdı":result.diff>0?"Kassada artıq pul var":"Kassada çatışmazlıq var"}
+              </div>
+            </div>
+          </div>
+          <div className="sheet-footer">
+            <button className="btn btn-primary" style={{width:"100%"}} onClick={()=>onClose(null)}>Bağla</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return(
+    <div className="overlay" onClick={e=>e.target===e.currentTarget&&onClose(null)}>
+      <div className="sheet anim-slidup">
+        <div className="sheet-handle"/>
+        <div className="sheet-header">
+          <div style={{fontSize:16,fontWeight:700}}>Günü Bağla</div>
+          <div style={{fontSize:13,color:"var(--text-tertiary)",marginTop:4}}>{workDate}</div>
+        </div>
+        <div className="sheet-body">
+          {/* Summary */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:16}}>
+            {[["Nağd Gəlir",`${todayCash.toFixed(2)}₼`,"var(--success)"],["Gözlənilən Kassa",`${expected.toFixed(2)}₼`,"var(--gold)"]].map(([l,v,c])=>(
+              <div key={l} className="stat-card">
+                <div style={{fontSize:11,color:"var(--text-tertiary)"}}>{l}</div>
+                <div className="price" style={{fontSize:17,fontWeight:800,color:c,marginTop:4}}>{v}</div>
+              </div>
+            ))}
+          </div>
+          {/* Physical */}
+          <div style={{marginBottom:12}}>
+            <div style={{fontSize:12,color:"var(--text-tertiary)",fontWeight:600,marginBottom:6}}>Kassadakı fiziki məbləğ (₼)</div>
+            <input className="inp" type="number" step="0.01" placeholder="0.00" value={physical} onChange={e=>setPhysical(e.target.value)} style={{fontSize:22,fontWeight:700,textAlign:"center",padding:"14px"}}/>
+          </div>
+          {/* Withdraw */}
+          <div style={{marginBottom:12}}>
+            <div style={{fontSize:12,color:"var(--text-tertiary)",fontWeight:600,marginBottom:6}}>Götürülən məbləğ (₼) — sabaha qalan istisna</div>
+            <input className="inp" type="number" step="0.01" placeholder="0.00" value={withdraw} onChange={e=>setWithdraw(e.target.value)}/>
+          </div>
+          {/* Preview */}
+          {physical&&<div className="card-inset" style={{padding:12,marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <span style={{fontSize:13,color:"var(--text-tertiary)"}}>Sabaha qalan:</span>
+            <span className="price" style={{fontSize:16,fontWeight:800,color:"var(--gold)"}}>
+              {((parseFloat(physical)||0)-(parseFloat(withdraw)||0)).toFixed(2)}₼
+            </span>
+          </div>}
+          {/* Note */}
+          <div style={{marginBottom:4}}>
+            <div style={{fontSize:12,color:"var(--text-tertiary)",fontWeight:600,marginBottom:6}}>Qeyd (ixtiyari)</div>
+            <input className="inp" placeholder="məs: 20₼ Əli müəllimə verildi" value={note} onChange={e=>setNote(e.target.value)}/>
+          </div>
+        </div>
+        <div className="sheet-footer">
+          <button className="btn btn-primary" style={{width:"100%",fontSize:15}} onClick={handleClose} disabled={!physical}>
+            Günü Bağla
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Helper — nağd xərcin nə qədəri nağddır (kassa çıxarışı xaric real xərc)
+function expenses2cash(dailyExpTotal){return dailyExpTotal;}
+
+/* ─── MAIN APP ─── */
 function App(){
   const [loading,setLoading]=useState(true);
-  const [syncStatus,setSyncStatus]=useState("ok");
+  const [sync,setSync]=useState("ok");
   const [role,setRole]=useState(()=>ls.get("role",null));
   const [tables,setTables]=useState(initTables);
   const [menu,setMenu]=useState(DEFAULT_MENU);
   const [stock,setStock]=useState(DEFAULT_STOCK);
   const [expenses,setExpenses]=useState([]);
-  const [workDate,setWorkDate]=useState(getWorkDate);
   const [history,setHistory]=useState([]);
+  const [workDate,setWorkDate]=useState(getWorkDate);
   const [creds,setCreds]=useState(DEFAULT_CREDS);
-  const [setsConfig,setSetsConfig]=useState(DEFAULT_SETS_CONFIG);
+  const [setsConfig,setSetsConfig]=useState(DEFAULT_SETS);
+  // Kassa
+  const [kassaLog,setKassaLog]=useState([]); // [{date,physical,withdrawn,nextStart,diff,note}]
+  const [kassaStart,setKassaStart]=useState(0); // başlanğıc məbləğ
+
   const [view,setView]=useState("tables");
   const [selTable,setSelTable]=useState(null);
   const [loc,setLoc]=useState("içəri");
@@ -435,7 +869,10 @@ function App(){
   const [showPay,setShowPay]=useState(false);
   const [showDate,setShowDate]=useState(false);
   const [showReset,setShowReset]=useState(false);
+  const [showKassaClose,setShowKassaClose]=useState(false);
   const [showNewSet,setShowNewSet]=useState(false);
+  const [invLog,setInvLog]=useState([]); // [{id,date,time,by,items:[{stockId,name,unit,system,actual,diff,reason}],totalLoss}]
+  const [invDraft,setInvDraft]=useState(null); // active inventory session
   const [menuSearch,setMenuSearch]=useState("");
   const [menuCat,setMenuCat]=useState("Hamısı");
   const [custom,setCustom]=useState({name:"",price:"",qty:1});
@@ -446,178 +883,77 @@ function App(){
   const [stockAdd,setStockAdd]=useState({});
   const [stockDel,setStockDel]=useState(null);
   const [newExp,setNewExp]=useState({cat:"Məhsul alışı",desc:"",amount:"",method:"Nağd"});
-  const [editExp,setEditExp]=useState(null); // {id, desc, amount, method, cat}
-  const [pwForm,setPwForm]=useState({adminPw:"",waiterPw:""});
+  const [editExp,setEditExp]=useState(null);
+  const [pwForm,setPwForm]=useState({a:"",w:""});
   const [pwMsg,setPwMsg]=useState("");
   const [newSetForm,setNewSetForm]=useState({name:"",price:"",defaultDrink:"",drinkOptions:"",extras:""});
+  const [toast,setToast]=useState(null);
+  const timers=useRef({});
 
-  const saveTimers = useRef({});
+  function showToast(msg){setToast(msg);}
 
-  // ── LOAD FROM SUPABASE ──
+  /* LOAD */
   useEffect(()=>{
-    async function loadAll(){
+    async function load(){
       setLoading(true);
-      try {
-        const [t,m,s,e,h,w,c,sc] = await Promise.all([
-          dbGet("tables"), dbGet("menu"), dbGet("stock"),
-          dbGet("expenses"), dbGet("history"), dbGet("workDate"), dbGet("creds"), dbGet("setsConfig")
+      try{
+        const [t,m,s,e,h,w,c,sc,kl,ks,il]=await Promise.all([
+          dbGet("tables"),dbGet("menu"),dbGet("stock"),dbGet("expenses"),
+          dbGet("history"),dbGet("workDate"),dbGet("creds"),dbGet("setsConfig"),
+          dbGet("kassaLog"),dbGet("kassaStart"),dbGet("invLog")
         ]);
-        if(t) setTables(t);
-        if(m) setMenu(m);
-        if(s) setStock(s);
-        if(e) setExpenses(e);
-        if(h) setHistory(h);
-        if(w) setWorkDate(w);
-        if(c) setCreds(c);
-        if(sc) setSetsConfig(sc);
-      } catch(err){ console.error("Load error:",err); }
+        if(t)setTables(t);if(m)setMenu(m);if(s)setStock(s);
+        if(e)setExpenses(e);if(h)setHistory(h);if(w)setWorkDate(w);
+        if(c)setCreds(c);if(sc)setSetsConfig(sc);
+        if(kl)setKassaLog(kl);if(ks!=null)setKassaStart(ks);
+        if(il)setInvLog(il);
+      }catch(err){console.error(err);}
       setLoading(false);
     }
-    loadAll();
+    load();
   },[]);
 
-  // ── REAL-TIME SUBSCRIPTION ──
+  /* REALTIME */
   useEffect(()=>{
-    if(loading) return;
-    const channel = supabase
-      .channel("app_state_changes")
-      .on("postgres_changes",{event:"UPDATE",schema:"public",table:"app_state"},(payload)=>{
-        const {key, value} = payload.new;
-        setSyncStatus("ok");
-        if(key==="tables") setTables(v=>JSON.stringify(v)!==JSON.stringify(value)?value:v);
-        if(key==="menu") setMenu(v=>JSON.stringify(v)!==JSON.stringify(value)?value:v);
-        if(key==="stock") setStock(v=>JSON.stringify(v)!==JSON.stringify(value)?value:v);
-        if(key==="expenses") setExpenses(v=>JSON.stringify(v)!==JSON.stringify(value)?value:v);
-        if(key==="history") setHistory(v=>JSON.stringify(v)!==JSON.stringify(value)?value:v);
-        if(key==="workDate") setWorkDate(v=>v!==value?value:v);
-        if(key==="creds") setCreds(v=>JSON.stringify(v)!==JSON.stringify(value)?value:v);
-        if(key==="setsConfig") setSetsConfig(v=>JSON.stringify(v)!==JSON.stringify(value)?value:v);
-      })
-      .subscribe();
-    return ()=>{ supabase.removeChannel(channel); };
+    if(loading)return;
+    const ch=sb.channel("app_state_changes")
+      .on("postgres_changes",{event:"UPDATE",schema:"public",table:"app_state"},(p)=>{
+        const{key:k,value:v}=p.new;setSync("ok");
+        const upd=(setter)=>setter(prev=>JSON.stringify(prev)!==JSON.stringify(v)?v:prev);
+        if(k==="tables")upd(setTables);if(k==="menu")upd(setMenu);if(k==="stock")upd(setStock);
+        if(k==="expenses")upd(setExpenses);if(k==="history")upd(setHistory);
+        if(k==="workDate")setWorkDate(prev=>prev!==v?v:prev);
+        if(k==="creds")upd(setCreds);if(k==="setsConfig")upd(setSetsConfig);
+        if(k==="kassaLog")upd(setKassaLog);if(k==="kassaStart")setKassaStart(v);
+        if(k==="invLog")upd(setInvLog);
+      }).subscribe();
+    return()=>sb.removeChannel(ch);
   },[loading]);
 
-  // ── DEBOUNCED SAVE ──
-  function scheduleSave(key, value, delay=600){
-    if(saveTimers.current[key]) clearTimeout(saveTimers.current[key]);
-    setSyncStatus("syncing");
-    saveTimers.current[key] = setTimeout(async()=>{
-      await dbSet(key, value);
-      setSyncStatus("ok");
-    }, delay);
+  /* SAVE */
+  function save(key,value,delay=600){
+    if(timers.current[key])clearTimeout(timers.current[key]);
+    setSync("syncing");
+    timers.current[key]=setTimeout(async()=>{await dbSet(key,value);setSync("ok");},delay);
   }
+  const fr=useRef(true);
+  useEffect(()=>{if(fr.current){fr.current=false;return;}save("tables",tables);},[tables]);
+  useEffect(()=>{if(!loading)save("menu",menu);},[menu]);
+  useEffect(()=>{if(!loading)save("stock",stock);},[stock]);
+  useEffect(()=>{if(!loading)save("expenses",expenses);},[expenses]);
+  useEffect(()=>{if(!loading)save("history",history);},[history]);
+  useEffect(()=>{if(!loading)save("workDate",workDate);},[workDate]);
+  useEffect(()=>{if(!loading)save("creds",creds);},[creds]);
+  useEffect(()=>{if(!loading)save("setsConfig",setsConfig);},[setsConfig]);
+  useEffect(()=>{if(!loading)save("kassaLog",kassaLog);},[kassaLog]);
+  useEffect(()=>{if(!loading)save("kassaStart",kassaStart);},[kassaStart]);
+  useEffect(()=>{if(!loading)save("invLog",invLog);},[invLog]);
+  useEffect(()=>{ls.set("role",role);},[role]);
 
-  const isFirstRender = useRef(true);
-  useEffect(()=>{ if(isFirstRender.current){isFirstRender.current=false;return;} scheduleSave("tables",tables); },[tables]);
-  useEffect(()=>{ if(!loading) scheduleSave("menu",menu); },[menu]);
-  useEffect(()=>{ if(!loading) scheduleSave("stock",stock); },[stock]);
-  useEffect(()=>{ if(!loading) scheduleSave("expenses",expenses); },[expenses]);
-  useEffect(()=>{ if(!loading) scheduleSave("history",history); },[history]);
-  useEffect(()=>{ if(!loading) scheduleSave("workDate",workDate); },[workDate]);
-  useEffect(()=>{ if(!loading) scheduleSave("creds",creds); },[creds]);
-  useEffect(()=>{ if(!loading) scheduleSave("setsConfig",setsConfig); },[setsConfig]);
-  useEffect(()=>{ ls.set("role",role); },[role]);
+  function logout(){setRole(null);ls.set("role",null);setView("tables");}
+  const getTotal=tid=>(tables[tid]?.orders||[]).filter(o=>!o.x).reduce((s,o)=>s+o.p*o.q,0);
 
-  function logout(){ setRole(null); ls.set("role",null); setView("tables"); }
-
-  const getTotal = tid => (tables[tid]?.orders||[]).filter(o=>!o.x).reduce((s,o)=>s+o.p*o.q,0);
-
-  // ── ADD ORDER ──
-  function addOrder(item, qty, note, selectedDrink){
-    // Apply stock rules
-    let newStockArr = applyStockRules(item.name, qty, stock);
-    // Also deduct direct stock match
-    const directMatch = newStockArr.find(s=>s.name.toLowerCase().trim()===item.name.toLowerCase().trim());
-    if(directMatch){
-      newStockArr = newStockArr.map(s=>s.id===directMatch.id?{...s,qty:Math.max(0,s.qty-qty)}:s);
-    }
-    setStock(newStockArr);
-
-    const orderNote = selectedDrink ? (note ? `${note} | İçki: ${selectedDrink}` : `İçki: ${selectedDrink}`) : note;
-    setTables(prev=>({...prev,[selTable]:{...prev[selTable],orders:[...prev[selTable].orders,
-      {id:Date.now(),n:item.name,p:item.price,q:qty,note:orderNote,t:timeStr(),x:false,
-       directStockId:directMatch?directMatch.id:null, selectedDrink: selectedDrink||null}
-    ]}}));
-    setShowOrder(false); setMenuSearch(""); setCustom({name:"",price:"",qty:1});
-  }
-
-  // ── CANCEL ORDER ──
-  function cancelOrder(tid, oid){
-    const order = (tables[tid]?.orders||[]).find(o=>o.id===oid);
-    if(order){
-      let newStockArr = reverseStockRules(order.n, order.q, stock);
-      if(order.directStockId){
-        newStockArr = newStockArr.map(s=>s.id===order.directStockId?{...s,qty:s.qty+order.q}:s);
-      }
-      setStock(newStockArr);
-    }
-    setTables(prev=>({...prev,[tid]:{...prev[tid],orders:prev[tid].orders.map(o=>o.id===oid?{...o,x:true}:o)}}));
-  }
-
-  // ── PAY TABLE ──
-  function payTable(method){
-    const total=getTotal(selTable);
-    const isIn=selTable<=15;
-    setHistory(prev=>[{date:workDate,time:timeStr(),
-      label:isIn?`İçəri ${selTable}`:`Çöl ${selTable-15}`,
-      orders:tables[selTable].orders.filter(o=>!o.x),total,method},...prev]);
-    setTables(prev=>({...prev,[selTable]:{orders:[]}}));
-    setShowPay(false); setSelTable(null); setView("tables");
-  }
-
-  // ── ADD MENU ITEM ──
-  function addMenuItem(){
-    if(!newItem.name.trim()||!newItem.price) return;
-    setMenu(prev=>[...prev,{id:Date.now(),name:newItem.name.trim(),price:parseFloat(newItem.price),cat:newItem.cat}]);
-    setNewItem({name:"",price:"",cat:"İçki"});
-  }
-
-  // ── EXPENSES ──
-  function addExpense(){
-    if(!newExp.desc.trim()||!newExp.amount) return;
-    setExpenses(prev=>[...prev,{id:Date.now(),date:workDate,time:timeStr(),...newExp,amount:parseFloat(newExp.amount)}]);
-    setNewExp({cat:"Məhsul alışı",desc:"",amount:"",method:"Nağd"});
-  }
-
-  function deleteExpense(id){
-    setExpenses(prev=>prev.filter(e=>e.id!==id));
-  }
-
-  function saveEditExpense(){
-    if(!editExp) return;
-    setExpenses(prev=>prev.map(e=>e.id===editExp.id?{...e,desc:editExp.desc,amount:parseFloat(editExp.amount),method:editExp.method,cat:editExp.cat}:e));
-    setEditExp(null);
-  }
-
-  // ── STOCK ──
-  function updateStock(id, delta){
-    setStock(prev=>prev.map(s=>s.id===id?{...s,qty:Math.max(0,s.qty+delta)}:s));
-  }
-
-  // ── PASSWORDS ──
-  function savePasswords(){
-    let updated={...creds};
-    if(pwForm.adminPw.trim()) updated.admin=pwForm.adminPw.trim();
-    if(pwForm.waiterPw.trim()) updated.waiter=pwForm.waiterPw.trim();
-    setCreds(updated);
-    setPwMsg("✓ Şifrələr yadda saxlandı");
-    setPwForm({adminPw:"",waiterPw:""});
-    setTimeout(()=>setPwMsg(""),3000);
-  }
-
-  // ── ADD NEW SET ──
-  function addNewSet(){
-    if(!newSetForm.name.trim()||!newSetForm.price) return;
-    const newId = Date.now();
-    const drinkOpts = newSetForm.drinkOptions ? newSetForm.drinkOptions.split(",").map(s=>s.trim()).filter(Boolean) : [];
-    const extrasArr = newSetForm.extras ? newSetForm.extras.split(",").map(s=>s.trim()).filter(Boolean) : [];
-    setMenu(prev=>[...prev,{id:newId,name:newSetForm.name.trim(),price:parseFloat(newSetForm.price),cat:"Set"}]);
-    setSetsConfig(prev=>[...prev,{id:newId,name:newSetForm.name.trim(),drinkOptions:drinkOpts,defaultDrink:newSetForm.defaultDrink||drinkOpts[0]||"",extras:extrasArr}]);
-    setNewSetForm({name:"",price:"",defaultDrink:"",drinkOptions:"",extras:""});
-    setShowNewSet(false);
-  }
-
-  // Stats
+  /* STATS */
   const todayH=history.filter(h=>h.date===workDate);
   const todayTotal=todayH.reduce((s,h)=>s+h.total,0);
   const todayCash=todayH.filter(h=>h.method==="Nağd").reduce((s,h)=>s+h.total,0);
@@ -625,18 +961,98 @@ function App(){
   const todayExp=expenses.filter(e=>e.date===workDate).reduce((s,e)=>s+e.amount,0);
   const activeCount=ALL_TABLES.filter(t=>(tables[t.id]?.orders||[]).filter(o=>!o.x).length>0).length;
   const filtered=menu.filter(m=>(menuCat==="Hamısı"||m.cat===menuCat)&&(menuSearch===""||m.name.toLowerCase().includes(menuSearch.toLowerCase())));
+  const lowStock=stock.filter(s=>s.qty<=s.min);
+  const todayKassa=kassaLog.find(k=>k.date===workDate);
 
-  const SyncDot = ()=>(
-    <div style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:syncStatus==="error"?C.red:syncStatus==="syncing"?C.gold:C.green}}>
-      <div className={syncStatus==="syncing"?"sync-dot":""} style={{width:6,height:6,borderRadius:"50%",background:syncStatus==="error"?C.red:syncStatus==="syncing"?C.gold:C.green}}/>
-      <span style={{color:C.muted}}>{syncStatus==="syncing"?"Sinxron...":syncStatus==="error"?"Xəta":"Canlı"}</span>
-    </div>
-  );
+  /* ORDER */
+  function addOrder(item,qty,note,drink){
+    let ns=applyStock(item.name,qty,stock);
+    const dm=ns.find(s=>s.name.toLowerCase()===item.name.toLowerCase());
+    if(dm)ns=ns.map(s=>s.id===dm.id?{...s,qty:Math.max(0,s.qty-qty)}:s);
+    setStock(ns);
+    setTables(prev=>({...prev,[selTable]:{...prev[selTable],orders:[...prev[selTable].orders,
+      {id:Date.now(),n:item.name,p:item.price,q:qty,note,t:timeStr(),x:false,dsid:dm?.id||null}
+    ]}}));
+    setShowOrder(false);setMenuSearch("");setCustom({name:"",price:"",qty:1});
+  }
 
-  if(loading) return <LoadingScreen/>;
-  if(!role) return <LoginScreen onLogin={r=>{setRole(r);ls.set("role",r);}} creds={creds}/>;
+  function cancelOrder(tid,oid){
+    const o=(tables[tid]?.orders||[]).find(o=>o.id===oid);
+    if(o){
+      let ns=reverseStock(o.n,o.q,stock);
+      if(o.dsid)ns=ns.map(s=>s.id===o.dsid?{...s,qty:s.qty+o.q}:s);
+      setStock(ns);
+    }
+    setTables(prev=>({...prev,[tid]:{...prev[tid],orders:prev[tid].orders.map(o=>o.id===oid?{...o,x:true}:o)}}));
+  }
 
-  // ── DETAIL VIEW ──
+  function payTable(method){
+    const total=getTotal(selTable);
+    const isIn=selTable<=15;
+    setHistory(prev=>[{date:workDate,time:timeStr(),
+      label:isIn?`İçəri ${selTable}`:`Çöl ${selTable-15}`,
+      orders:tables[selTable].orders.filter(o=>!o.x),total,method},...prev]);
+    setTables(prev=>({...prev,[selTable]:{orders:[]}}));
+    setShowPay(false);setSelTable(null);setView("tables");
+    showToast("✓ Hesab bağlandı");
+  }
+
+  /* KASSA CLOSE */
+  function handleKassaClose(data){
+    if(!data){setShowKassaClose(false);return;}
+    setKassaLog(prev=>{
+      const filtered=prev.filter(k=>k.date!==workDate);
+      return[{date:workDate,...data},...filtered];
+    });
+    setKassaStart(data.nextStart);
+    setShowKassaClose(false);
+    showToast("✓ Gün bağlandı, kassa qeyd edildi");
+  }
+
+  /* EXPENSES */
+  function addExpense(){
+    if(!newExp.desc.trim()||!newExp.amount)return;
+    setExpenses(prev=>[...prev,{id:Date.now(),date:workDate,time:timeStr(),...newExp,amount:parseFloat(newExp.amount)}]);
+    setNewExp({cat:"Məhsul alışı",desc:"",amount:"",method:"Nağd"});
+    showToast("✓ Xərc əlavə edildi");
+  }
+  function deleteExpense(id){setExpenses(prev=>prev.filter(e=>e.id!==id));showToast("✓ Xərc silindi");}
+  function saveEditExpense(){
+    if(!editExp)return;
+    setExpenses(prev=>prev.map(e=>e.id===editExp.id?{...e,...editExp,amount:parseFloat(editExp.amount)}:e));
+    setEditExp(null);showToast("✓ Xərc yeniləndi");
+  }
+
+  /* STOCK */
+  function updateStock(id,delta){setStock(prev=>prev.map(s=>s.id===id?{...s,qty:Math.max(0,s.qty+delta)}:s));}
+
+  /* PASSWORDS */
+  function savePasswords(){
+    let u={...creds};
+    if(pwForm.a.trim())u.admin=pwForm.a.trim();
+    if(pwForm.w.trim())u.waiter=pwForm.w.trim();
+    setCreds(u);setPwMsg("Şifrələr yadda saxlandı");setPwForm({a:"",w:""});
+    setTimeout(()=>setPwMsg(""),3000);
+  }
+
+  /* ADD SET */
+  function addNewSet(){
+    if(!newSetForm.name.trim()||!newSetForm.price)return;
+    const nid=Date.now();
+    const drinks=newSetForm.drinkOptions?newSetForm.drinkOptions.split(",").map(s=>s.trim()).filter(Boolean):[];
+    const extras=newSetForm.extras?newSetForm.extras.split(",").map(s=>s.trim()).filter(Boolean):[];
+    setMenu(prev=>[...prev,{id:nid,name:newSetForm.name.trim(),price:parseFloat(newSetForm.price),cat:"Set"}]);
+    setSetsConfig(prev=>[...prev,{id:nid,name:newSetForm.name.trim(),drinkOptions:drinks,defaultDrink:newSetForm.defaultDrink||drinks[0]||"",extras}]);
+    setNewSetForm({name:"",price:"",defaultDrink:"",drinkOptions:"",extras:""});
+    setShowNewSet(false);showToast("✓ Yeni set yaradıldı");
+  }
+
+  if(loading)return<LoadingScreen/>;
+  if(!role)return<LoginScreen onLogin={r=>{setRole(r);ls.set("role",r);}} creds={creds}/>;
+
+  const isAdmin=role==="admin";
+
+  /* ─ DETAIL VIEW ─ */
   if(view==="detail"&&selTable){
     const orders=(tables[selTable]?.orders||[]).filter(o=>!o.x);
     const cancelled=(tables[selTable]?.orders||[]).filter(o=>o.x);
@@ -644,48 +1060,51 @@ function App(){
     const isIn=selTable<=15;
     const dNum=isIn?selTable:selTable-15;
     const dLoc=isIn?"İçəri":"Çöl";
+
     return(
-      <div style={{minHeight:"100vh",background:C.bg,maxWidth:520,margin:"0 auto"}}>
-        {/* Header */}
-        <div style={{background:`linear-gradient(180deg,#14141e,${C.bg})`,padding:"14px 16px",display:"flex",alignItems:"center",gap:12,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:50,backdropFilter:"blur(12px)"}}>
-          <button onClick={()=>{setView("tables");setSelTable(null);setShowOrder(false);}}
-            style={{...btn("rgba(255,255,255,0.06)",C.text),padding:"7px 14px",fontSize:13,border:`1px solid ${C.border}`}}>← Geri</button>
-          <div style={{flex:1}}>
-            <div style={{fontSize:16,fontWeight:700,color:C.text}}>{dLoc} — Masa {dNum}</div>
-            <div style={{fontSize:11,color:C.muted,marginTop:1}}>{workDate}</div>
+      <div className="page">
+        <div className="page-header" style={{padding:"12px 16px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <button className="btn btn-ghost" style={{padding:"8px 12px",gap:6,fontSize:13}} onClick={()=>{setView("tables");setSelTable(null);setShowOrder(false);}}>
+              <Icon.back size={16}/> Geri
+            </button>
+            <div style={{flex:1}}>
+              <div style={{fontSize:15,fontWeight:700}}>{dLoc} · Masa {dNum}</div>
+              <div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:1}}>{workDate}</div>
+            </div>
+            <SyncDot status={sync}/>
           </div>
-          <SyncDot/>
         </div>
 
-        <div style={{padding:"12px 14px",paddingBottom:150}}>
+        <div style={{padding:"14px 14px",paddingBottom:orders.length>0?140:90}}>
           {orders.length===0&&(
-            <div style={{textAlign:"center",padding:"60px 0",color:C.muted}}>
-              <div style={{fontSize:48,marginBottom:12,opacity:0.4}}>🍽</div>
-              <div style={{fontSize:15,fontWeight:500}}>Hələ sifariş yoxdur</div>
-              <div style={{fontSize:12,marginTop:6,color:"#44445a"}}>+ düyməsinə basın</div>
+            <div style={{textAlign:"center",padding:"64px 0",color:"var(--text-tertiary)"}} className="anim-fadeup">
+              <div style={{fontSize:48,marginBottom:12,opacity:0.3}}>🍽</div>
+              <div style={{fontSize:15,fontWeight:500,color:"var(--text-secondary)"}}>Sifariş yoxdur</div>
+              <div style={{fontSize:13,marginTop:6}}>Aşağıdakı + düyməsini basın</div>
             </div>
           )}
-          {orders.map(o=>(
-            <div key={o.id} className="fade-in" style={{display:"flex",alignItems:"center",padding:"12px 14px",background:C.card,borderRadius:14,marginBottom:8,gap:10,border:`1px solid ${C.border}`}}>
-              <div style={{flex:1}}>
-                <div style={{fontSize:14,fontWeight:500}}>{o.n}</div>
-                <div style={{fontSize:11,color:C.muted,marginTop:3}}>{o.q} × {o.p.toFixed(2)}₼{o.note?` · ${o.note}`:""} · {o.t}</div>
+          {orders.map((o,i)=>(
+            <div key={o.id} className="order-item anim-fadeup" style={{animationDelay:`${i*0.04}s`}}>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:14,fontWeight:500,color:"var(--text-primary)"}}>{o.n}</div>
+                <div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:2}}>{o.q} × {o.p.toFixed(2)}₼{o.note?` · ${o.note}`:""} · {o.t}</div>
               </div>
-              <div style={{fontSize:15,fontWeight:700,color:C.gold}}>{(o.q*o.p).toFixed(2)}₼</div>
-              <button onClick={()=>cancelOrder(selTable,o.id)}
-                style={{...btn("rgba(224,85,85,0.1)",C.red),fontSize:16,padding:"6px 10px",border:"1px solid rgba(224,85,85,0.2)",borderRadius:10}}>✕</button>
+              <span className="price" style={{fontSize:14,fontWeight:700,color:"var(--gold)",flexShrink:0}}>{(o.q*o.p).toFixed(2)}₼</span>
+              <button className="btn-icon" style={{background:"var(--danger-dim)",borderColor:"var(--danger-border)",color:"var(--danger)"}} onClick={()=>cancelOrder(selTable,o.id)}>
+                <Icon.x size={14} color="var(--danger)"/>
+              </button>
             </div>
           ))}
-
           {cancelled.length>0&&(
-            <details style={{marginTop:8}}>
-              <summary style={{color:"#44445a",fontSize:12,cursor:"pointer",padding:"8px 4px",userSelect:"none"}}>
-                Ləğv edilmiş ({cancelled.length})
+            <details style={{marginTop:10}}>
+              <summary style={{fontSize:12,color:"var(--text-tertiary)",cursor:"pointer",padding:"6px 0",userSelect:"none",listStyle:"none",display:"flex",alignItems:"center",gap:6}}>
+                <span>Ləğv edilmiş</span><span className="badge badge-muted">{cancelled.length}</span>
               </summary>
               {cancelled.map(o=>(
-                <div key={o.id} style={{display:"flex",padding:"9px 12px",background:"rgba(255,255,255,0.02)",borderRadius:10,marginBottom:5,opacity:0.4,gap:10}}>
-                  <div style={{flex:1,fontSize:13,textDecoration:"line-through",color:"#555"}}>{o.n} × {o.q}</div>
-                  <div style={{fontSize:13,color:"#444"}}>{(o.q*o.p).toFixed(2)}₼</div>
+                <div key={o.id} style={{display:"flex",padding:"8px 10px",background:"rgba(255,255,255,0.02)",borderRadius:"var(--r-sm)",marginBottom:4,opacity:0.35,gap:10,marginTop:4}}>
+                  <div style={{flex:1,fontSize:13,textDecoration:"line-through",color:"var(--text-tertiary)"}}>{o.n} × {o.q}</div>
+                  <div className="price" style={{fontSize:13,color:"var(--text-tertiary)"}}>{(o.q*o.p).toFixed(2)}₼</div>
                 </div>
               ))}
             </details>
@@ -693,59 +1112,56 @@ function App(){
         </div>
 
         {/* FAB */}
-        <button onClick={()=>setShowOrder(true)}
-          style={{position:"fixed",bottom:orders.length>0?100:28,right:20,width:58,height:58,borderRadius:"50%",
-            background:`linear-gradient(135deg,${C.gold},#d4a030)`,border:"none",color:"#0a0a0f",
-            fontSize:28,fontWeight:700,cursor:"pointer",boxShadow:"0 4px 24px rgba(240,192,96,0.45)",
-            display:"flex",alignItems:"center",justifyContent:"center",zIndex:200}}>+</button>
+        <button className="fab" style={{bottom:orders.length>0?108:24,right:16}} onClick={()=>setShowOrder(true)}>
+          <Icon.plus size={24} color="#080810"/>
+        </button>
 
         {/* Bottom bar */}
         {orders.length>0&&(
           <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:520,
-            background:"rgba(12,12,18,0.95)",borderTop:`1px solid ${C.border}`,
-            padding:"14px 16px 20px",display:"flex",alignItems:"center",gap:12,zIndex:100,backdropFilter:"blur(12px)"}}>
+            background:"rgba(8,8,16,0.95)",borderTop:"1px solid var(--border-1)",
+            padding:"12px 16px 20px",display:"flex",alignItems:"center",gap:12,zIndex:100,
+            backdropFilter:"blur(16px)"}}>
             <div style={{flex:1}}>
-              <div style={{color:C.muted,fontSize:12}}>Ümumi məbləğ</div>
-              <div style={{fontSize:26,fontWeight:800,color:C.gold,letterSpacing:-0.5}}>{total.toFixed(2)} ₼</div>
+              <div style={{fontSize:11,color:"var(--text-tertiary)"}}>Ümumi</div>
+              <div className="price" style={{fontSize:26,fontWeight:900,color:"var(--gold)",letterSpacing:-0.5,marginTop:2}}>{total.toFixed(2)} ₼</div>
             </div>
-            <button onClick={()=>setShowPay(true)}
-              style={{...btn("linear-gradient(135deg,#2d7a3d,#1a5c28)","#fff"),padding:"13px 22px",fontSize:14,borderRadius:14,boxShadow:"0 4px 16px rgba(45,122,61,0.4)"}}>
-              💳 Hesabı Bağla
+            <button className="btn btn-success" style={{padding:"13px 22px",fontSize:14,borderRadius:"var(--r-md)"}} onClick={()=>setShowPay(true)}>
+              Hesabı Bağla
             </button>
           </div>
         )}
 
-        {/* Order Modal */}
+        {/* ORDER SHEET */}
         {showOrder&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",zIndex:300,display:"flex",flexDirection:"column",justifyContent:"flex-end",backdropFilter:"blur(4px)"}}
-            onClick={e=>{if(e.target===e.currentTarget){setShowOrder(false);setMenuSearch("");}}}>
-            <div className="slide-up" style={{background:"#13131e",borderRadius:"22px 22px 0 0",maxHeight:"88vh",display:"flex",flexDirection:"column",border:`1px solid ${C.border}`}}>
-              <div style={{width:40,height:4,background:"#2a2a3c",borderRadius:2,margin:"12px auto 14px"}}/>
-              <div style={{padding:"0 16px 14px",borderBottom:`1px solid ${C.border}`,fontSize:16,fontWeight:700,color:C.text}}>Sifariş əlavə et</div>
-              <div style={{padding:"12px 14px 0"}}>
-                <input style={{...inp,background:"rgba(255,255,255,0.04)"}} placeholder="🔍 Axtar..." value={menuSearch} onChange={e=>setMenuSearch(e.target.value)} autoFocus/>
-                <div style={{display:"flex",gap:6,overflowX:"auto",padding:"10px 0",scrollbarWidth:"none"}}>
-                  {ALL_CATS.map(cat=>(
-                    <button key={cat} onClick={()=>setMenuCat(cat)}
-                      style={{...btn(menuCat===cat?C.gold:"rgba(255,255,255,0.04)",menuCat===cat?"#0a0a0f":C.muted),
-                        border:`1px solid ${menuCat===cat?C.gold:C.border}`,borderRadius:20,fontSize:12,
-                        padding:"5px 13px",whiteSpace:"nowrap",fontWeight:menuCat===cat?700:400}}>
-                      {cat}
-                    </button>
+          <div className="overlay" onClick={e=>{if(e.target===e.currentTarget){setShowOrder(false);setMenuSearch("");}}}>
+            <div className="sheet anim-slidup" style={{maxHeight:"90dvh"}}>
+              <div className="sheet-handle"/>
+              <div className="sheet-header">
+                <div style={{fontSize:16,fontWeight:700}}>Sifariş əlavə et</div>
+              </div>
+              <div style={{padding:"10px 14px 0",flexShrink:0}}>
+                <input className="inp" placeholder="Axtar..." value={menuSearch} onChange={e=>setMenuSearch(e.target.value)} autoFocus style={{marginBottom:8}}/>
+                <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:10,scrollbarWidth:"none"}}>
+                  {ALL_CATS.map(c=>(
+                    <button key={c} className={`chip${menuCat===c?" active":""}`} onClick={()=>setMenuCat(c)}>{c}</button>
                   ))}
                 </div>
               </div>
-              <div style={{overflowY:"auto",flex:1,padding:"8px 14px 24px"}}>
+              <div className="scroll-area" style={{flex:1,padding:"4px 14px 20px"}}>
                 {filtered.map(item=><MenuRow key={item.id} item={item} onAdd={addOrder} stock={stock} setsConfig={setsConfig}/>)}
-                {filtered.length===0&&<div style={{textAlign:"center",color:C.muted,padding:30,fontSize:13}}>Tapılmadı</div>}
-                <div style={{marginTop:16,paddingTop:16,borderTop:`1px solid ${C.border}`}}>
-                  <div style={{fontSize:12,color:C.muted,marginBottom:10,fontWeight:500}}>Əl ilə daxil et</div>
-                  <input style={{...inp,marginBottom:8}} placeholder="Məhsul adı" value={custom.name} onChange={e=>setCustom(p=>({...p,name:e.target.value}))}/>
+                {filtered.length===0&&<div style={{textAlign:"center",color:"var(--text-tertiary)",padding:30,fontSize:13}}>Tapılmadı</div>}
+                {/* Manual entry */}
+                <div style={{marginTop:16,paddingTop:16,borderTop:"1px solid var(--border-1)"}}>
+                  <div className="section-label">Əl ilə daxil et</div>
+                  <input className="inp" style={{marginBottom:8}} placeholder="Məhsul adı" value={custom.name} onChange={e=>setCustom(p=>({...p,name:e.target.value}))}/>
                   <div style={{display:"flex",gap:8}}>
-                    <input style={{...inp,flex:1}} placeholder="Qiymət" type="number" step="0.01" value={custom.price} onChange={e=>setCustom(p=>({...p,price:e.target.value}))}/>
-                    <input style={{...inp,width:70}} placeholder="Say" type="number" min="1" value={custom.qty} onChange={e=>setCustom(p=>({...p,qty:parseInt(e.target.value)||1}))}/>
-                    <button onClick={()=>{if(custom.name&&custom.price)addOrder({name:custom.name,price:parseFloat(custom.price)},custom.qty,"",null);}}
-                      style={{...btn("linear-gradient(135deg,#2d7a3d,#1f5c28)","#fff"),padding:"10px 14px",fontSize:13,whiteSpace:"nowrap",borderRadius:12}}>Əlavə</button>
+                    <input className="inp" style={{flex:1}} placeholder="Qiymət" type="number" step="0.01" value={custom.price} onChange={e=>setCustom(p=>({...p,price:e.target.value}))}/>
+                    <input className="inp" style={{width:72}} placeholder="Say" type="number" min="1" value={custom.qty} onChange={e=>setCustom(p=>({...p,qty:parseInt(e.target.value)||1}))}/>
+                    <button className="btn btn-success" style={{whiteSpace:"nowrap",padding:"10px 14px"}}
+                      onClick={()=>{if(custom.name&&custom.price)addOrder({name:custom.name,price:parseFloat(custom.price)},custom.qty,"",null);}}>
+                      Əlavə
+                    </button>
                   </div>
                 </div>
               </div>
@@ -753,26 +1169,27 @@ function App(){
           </div>
         )}
 
-        {/* Pay Modal */}
+        {/* PAY SHEET */}
         {showPay&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",zIndex:300,display:"flex",flexDirection:"column",justifyContent:"flex-end",backdropFilter:"blur(4px)"}}
-            onClick={e=>{if(e.target===e.currentTarget)setShowPay(false);}}>
-            <div className="slide-up" style={{background:"#13131e",borderRadius:"22px 22px 0 0",padding:"0 0 32px",border:`1px solid ${C.border}`}}>
-              <div style={{width:40,height:4,background:"#2a2a3c",borderRadius:2,margin:"12px auto"}}/>
-              <div style={{padding:"0 18px 16px",borderBottom:`1px solid ${C.border}`}}>
+          <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)setShowPay(false);}}>
+            <div className="sheet anim-slidup">
+              <div className="sheet-handle"/>
+              <div className="sheet-header">
                 <div style={{fontSize:16,fontWeight:700}}>Hesabı Bağla</div>
-                <div style={{fontSize:13,color:C.muted,marginTop:4}}>Masa {dNum} · {orders.length} sifariş</div>
+                <div style={{fontSize:13,color:"var(--text-tertiary)",marginTop:4}}>Masa {dNum} · {orders.length} sifariş</div>
               </div>
               <div style={{padding:"28px 18px",textAlign:"center"}}>
-                <div style={{fontSize:13,color:C.muted,marginBottom:6}}>Ümumi məbləğ</div>
-                <div style={{fontSize:44,fontWeight:900,color:C.gold,letterSpacing:-1,marginBottom:28}}>{total.toFixed(2)} ₼</div>
-                <div style={{display:"flex",gap:14}}>
+                <div style={{fontSize:12,color:"var(--text-tertiary)",marginBottom:6}}>Ümumi məbləğ</div>
+                <div className="price" style={{fontSize:48,fontWeight:900,color:"var(--gold)",letterSpacing:-1,marginBottom:28}}>{total.toFixed(2)}₼</div>
+                <div style={{display:"flex",gap:12}}>
                   <button onClick={()=>payTable("Nağd")}
-                    style={{flex:1,background:"rgba(86,204,122,0.08)",border:`2px solid ${C.green}`,borderRadius:16,color:C.green,fontWeight:700,fontSize:17,padding:20,cursor:"pointer"}}>
+                    style={{flex:1,background:"var(--success-dim)",border:"2px solid var(--success-border)",borderRadius:"var(--r-lg)",color:"var(--success)",fontWeight:700,fontSize:17,padding:20,cursor:"pointer",fontFamily:"inherit",transition:"all 0.15s"}}
+                    onMouseEnter={e=>e.currentTarget.style.background="rgba(74,222,128,0.18)"}
+                    onMouseLeave={e=>e.currentTarget.style.background="var(--success-dim)"}>
                     💵 Nağd
                   </button>
                   <button onClick={()=>payTable("Kart")}
-                    style={{flex:1,background:"rgba(96,168,240,0.08)",border:`2px solid ${C.blue}`,borderRadius:16,color:C.blue,fontWeight:700,fontSize:17,padding:20,cursor:"pointer"}}>
+                    style={{flex:1,background:"var(--info-dim)",border:"2px solid var(--info-border)",borderRadius:"var(--r-lg)",color:"var(--info)",fontWeight:700,fontSize:17,padding:20,cursor:"pointer",fontFamily:"inherit",transition:"all 0.15s"}}>
                     💳 Kart
                   </button>
                 </div>
@@ -780,221 +1197,259 @@ function App(){
             </div>
           </div>
         )}
+        {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
       </div>
     );
   }
 
-  // ── HISTORY VIEW ──
+  /* ─ HISTORY VIEW ─ */
   if(view==="history"){
     const grouped=history.reduce((a,h)=>{(a[h.date]=a[h.date]||[]).push(h);return a;},{});
-    const monthlyByDate={};
-    history.forEach(h=>{
-      const [d,m,y]=h.date.split(".");
-      const key=`${m}.${y}`;
-      monthlyByDate[key]=(monthlyByDate[key]||0)+h.total;
-    });
+    const monthly={};
+    history.forEach(h=>{const[d,m,y]=h.date.split(".");const k=`${m}.${y}`;monthly[k]=(monthly[k]||0)+h.total;});
+    const todayKassaEntry=kassaLog.find(k=>k.date===workDate);
+
     return(
-      <div style={{minHeight:"100vh",background:C.bg,maxWidth:520,margin:"0 auto"}}>
-        <div style={{background:"#14141e",padding:"14px 16px",display:"flex",alignItems:"center",gap:12,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:50,backdropFilter:"blur(12px)"}}>
-          <button onClick={()=>setView("tables")} style={{...btn("rgba(255,255,255,0.06)",C.text),padding:"7px 14px",fontSize:13,border:`1px solid ${C.border}`}}>← Geri</button>
-          <div style={{flex:1,fontSize:16,fontWeight:700}}>📊 Hesabatlar</div>
-          <SyncDot/>
+      <div className="page">
+        <div className="page-header" style={{padding:"12px 16px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <button className="btn btn-ghost" style={{padding:"8px 12px",gap:6,fontSize:13}} onClick={()=>setView("tables")}>
+              <Icon.back size={16}/> Geri
+            </button>
+            <div style={{flex:1,fontSize:15,fontWeight:700}}>Hesabatlar</div>
+            <SyncDot status={sync}/>
+          </div>
         </div>
-        <div style={{padding:"14px 14px 0"}}>
-          {/* Today summary */}
-          <div style={{background:"linear-gradient(135deg,rgba(30,44,30,0.8),rgba(15,25,15,0.9))",borderRadius:16,padding:18,border:"1px solid rgba(86,204,122,0.2)",marginBottom:14}}>
-            <div style={{fontSize:11,color:C.muted,marginBottom:12,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8}}>Bu gün — {workDate}</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-              {[["💰 Gəlir",todayTotal.toFixed(2)+"₼",C.green],["💸 Xərc",todayExp.toFixed(2)+"₼",C.red],
-                ["💵 Nağd",todayCash.toFixed(2)+"₼",C.textSub],["💳 Kart",todayCard.toFixed(2)+"₼",C.textSub]].map(([l,v,c])=>(
-                <div key={l} style={{background:"rgba(0,0,0,0.25)",borderRadius:12,padding:"12px 14px"}}>
-                  <div style={{fontSize:11,color:C.muted}}>{l}</div>
-                  <div style={{fontSize:20,fontWeight:800,color:c,marginTop:3}}>{v}</div>
+        <div style={{padding:"14px 14px 24px"}}>
+          {/* Today card */}
+          <div style={{background:"linear-gradient(135deg,rgba(245,200,66,0.06),rgba(74,222,128,0.04))",border:"1px solid rgba(245,200,66,0.15)",borderRadius:"var(--r-xl)",padding:18,marginBottom:14}} className="anim-fadeup">
+            <div className="section-label" style={{marginBottom:12}}>Bu gün — {workDate}</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
+              {[["Gəlir",todayTotal.toFixed(2)+"₼","var(--success)"],["Xərc",todayExp.toFixed(2)+"₼","var(--danger)"],["Nağd",todayCash.toFixed(2)+"₼","var(--text-secondary)"],["Kart",todayCard.toFixed(2)+"₼","var(--info)"]].map(([l,v,c])=>(
+                <div key={l} className="stat-card">
+                  <div style={{fontSize:11,color:"var(--text-tertiary)"}}>{l}</div>
+                  <div className="price" style={{fontSize:19,fontWeight:800,color:c,marginTop:3}}>{v}</div>
                 </div>
               ))}
             </div>
-            <div style={{marginTop:10,padding:"12px 14px",background:"rgba(0,0,0,0.25)",borderRadius:12}}>
-              <div style={{fontSize:11,color:C.muted}}>📈 Xalis Mənfəət</div>
-              <div style={{fontSize:22,fontWeight:800,color:(todayTotal-todayExp)>=0?C.green:C.red,marginTop:3}}>{(todayTotal-todayExp).toFixed(2)} ₼</div>
+            <div className="stat-card" style={{background:(todayTotal-todayExp)>=0?"var(--success-dim)":"var(--danger-dim)",borderColor:(todayTotal-todayExp)>=0?"var(--success-border)":"var(--danger-border)"}}>
+              <div style={{fontSize:11,color:"var(--text-tertiary)"}}>Xalis Mənfəət</div>
+              <div className="price" style={{fontSize:22,fontWeight:900,color:(todayTotal-todayExp)>=0?"var(--success)":"var(--danger)",marginTop:3}}>{(todayTotal-todayExp).toFixed(2)} ₼</div>
             </div>
           </div>
 
+          {/* Kassa close summary */}
+          {todayKassaEntry&&(
+            <div style={{background:"var(--gold-dim)",border:"1px solid var(--gold-border)",borderRadius:"var(--r-lg)",padding:"14px 16px",marginBottom:14}} className="anim-fadeup">
+              <div style={{fontSize:12,color:"var(--gold)",fontWeight:700,marginBottom:8}}>Gün Bağlanışı — {workDate}</div>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"var(--text-secondary)"}}>
+                <span>Götürüldü</span><span className="price" style={{fontWeight:700,color:"var(--warning)"}}>{todayKassaEntry.withdrawn.toFixed(2)}₼</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"var(--text-secondary)",marginTop:4}}>
+                <span>Sabaha qalan</span><span className="price" style={{fontWeight:700,color:"var(--gold)"}}>{todayKassaEntry.nextStart.toFixed(2)}₼</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"var(--text-secondary)",marginTop:4}}>
+                <span>Kassa fərqi</span>
+                <span className={`price ${todayKassaEntry.diff===0?"kassa-diff-zero":todayKassaEntry.diff>0?"kassa-diff-positive":"kassa-diff-negative"}`} style={{fontWeight:700}}>
+                  {todayKassaEntry.diff>0?"+":""}{todayKassaEntry.diff.toFixed(2)}₼
+                </span>
+              </div>
+              {todayKassaEntry.note&&<div style={{fontSize:12,color:"var(--text-tertiary)",marginTop:6,borderTop:"1px solid var(--gold-border)",paddingTop:6}}>{todayKassaEntry.note}</div>}
+            </div>
+          )}
+
           {/* Monthly */}
-          {Object.keys(monthlyByDate).length>0&&(
-            <div className="glass-card" style={{padding:14,marginBottom:14}}>
-              <div style={{fontSize:11,color:C.muted,marginBottom:10,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8}}>Aylıq Gəlir</div>
-              {Object.entries(monthlyByDate).sort((a,b)=>b[0].localeCompare(a[0])).map(([month,total])=>(
-                <div key={month} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:`1px solid ${C.border}`}}>
-                  <div style={{fontSize:14}}>{month}</div>
-                  <div style={{fontSize:14,fontWeight:700,color:C.gold}}>{total.toFixed(2)} ₼</div>
+          {Object.keys(monthly).length>0&&(
+            <div className="card" style={{padding:14,marginBottom:14}}>
+              <div className="section-label">Aylıq Gəlir</div>
+              {Object.entries(monthly).sort((a,b)=>b[0].localeCompare(a[0])).map(([mo,tot])=>(
+                <div key={mo} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid var(--border-1)"}}>
+                  <span style={{fontSize:14,color:"var(--text-secondary)"}}>{mo}</span>
+                  <span className="price" style={{fontSize:14,fontWeight:700,color:"var(--gold)"}}>{tot.toFixed(2)} ₼</span>
                 </div>
               ))}
             </div>
           )}
 
-          <div style={{fontSize:11,color:C.muted,marginBottom:10,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8}}>Günlük Hesablar</div>
-          {Object.keys(grouped).length===0&&<div style={{textAlign:"center",padding:40,color:"#2a2a40"}}>Hələ bağlanan hesab yoxdur</div>}
+          {/* Daily history */}
+          <div className="section-label">Günlük Hesablar</div>
+          {Object.keys(grouped).length===0&&<div style={{textAlign:"center",padding:40,color:"var(--text-tertiary)",fontSize:13}}>Hələ hesab yoxdur</div>}
           {Object.entries(grouped).sort((a,b)=>b[0].localeCompare(a[0])).map(([date,entries])=>{
             const dt=entries.reduce((s,h)=>s+h.total,0);
             return(
               <div key={date} style={{marginBottom:14}}>
-                <div style={{display:"flex",justifyContent:"space-between",padding:"8px 4px",marginBottom:8}}>
-                  <div style={{fontSize:13,fontWeight:700,color:C.gold}}>📅 {date}</div>
-                  <div style={{fontSize:13,fontWeight:700,color:C.green}}>{dt.toFixed(2)} ₼</div>
+                <div style={{display:"flex",justifyContent:"space-between",padding:"8px 2px",marginBottom:8}}>
+                  <span style={{fontSize:13,fontWeight:700,color:"var(--gold)"}}>{date}</span>
+                  <span className="price" style={{fontSize:13,fontWeight:700,color:"var(--success)"}}>{dt.toFixed(2)} ₼</span>
                 </div>
                 {entries.map((h,i)=>(
-                  <div key={i} className="glass-card" style={{padding:"12px 14px",marginBottom:7}}>
+                  <div key={i} className="card" style={{padding:"12px 14px",marginBottom:6}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                      <div style={{fontSize:14,fontWeight:600}}>{h.label}</div>
+                      <span style={{fontSize:14,fontWeight:600}}>{h.label}</span>
                       <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                        <span className="badge" style={{background:h.method==="Kart"?"rgba(96,168,240,0.12)":"rgba(86,204,122,0.12)",color:h.method==="Kart"?C.blue:C.green,border:`1px solid ${h.method==="Kart"?"rgba(96,168,240,0.3)":"rgba(86,204,122,0.3)"}`}}>{h.method}</span>
-                        <span style={{fontSize:15,fontWeight:700,color:C.gold}}>{h.total.toFixed(2)}₼</span>
+                        <span className={`badge ${h.method==="Kart"?"badge-info":"badge-success"}`}>{h.method}</span>
+                        <span className="price" style={{fontSize:15,fontWeight:700,color:"var(--gold)"}}>{h.total.toFixed(2)}₼</span>
                       </div>
                     </div>
-                    <div style={{fontSize:11,color:"#44445a",marginTop:5}}>{h.time} · {h.orders.map(o=>`${o.n}×${o.q}`).join(", ")}</div>
+                    <div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:5}}>{h.time} · {h.orders.map(o=>`${o.n}×${o.q}`).join(", ")}</div>
                   </div>
                 ))}
               </div>
             );
           })}
         </div>
-        <div style={{height:24}}/>
       </div>
     );
   }
 
-  // ── STOCK VIEW ──
+  /* ─ STOCK VIEW ─ */
   if(view==="stock"){
     return(
-      <div style={{minHeight:"100vh",background:C.bg,maxWidth:520,margin:"0 auto"}}>
-        <div style={{background:"#14141e",padding:"14px 16px",display:"flex",alignItems:"center",gap:12,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:50,backdropFilter:"blur(12px)"}}>
-          <button onClick={()=>setView("tables")} style={{...btn("rgba(255,255,255,0.06)",C.text),padding:"7px 14px",fontSize:13,border:`1px solid ${C.border}`}}>← Geri</button>
-          <div style={{flex:1,fontSize:16,fontWeight:700}}>📦 Stok / Anbar</div>
-          <SyncDot/>
+      <div className="page">
+        <div className="page-header" style={{padding:"12px 16px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <button className="btn btn-ghost" style={{padding:"8px 12px",gap:6,fontSize:13}} onClick={()=>setView("tables")}>
+              <Icon.back size={16}/> Geri
+            </button>
+            <div style={{flex:1}}>
+              <div style={{fontSize:15,fontWeight:700}}>Stok</div>
+              {lowStock.length>0&&<div style={{fontSize:11,color:"var(--danger)",marginTop:1}}>{lowStock.length} məhsul az qalıb</div>}
+            </div>
+            <SyncDot status={sync}/>
+          </div>
         </div>
         <div style={{padding:"14px 14px 80px"}}>
+          {lowStock.length>0&&(
+            <div style={{background:"var(--danger-dim)",border:"1px solid var(--danger-border)",borderRadius:"var(--r-md)",padding:"10px 14px",marginBottom:14,display:"flex",alignItems:"center",gap:8}}>
+              <Icon.warning size={15} color="var(--danger)"/>
+              <span style={{fontSize:13,color:"var(--danger)",fontWeight:500}}>{lowStock.map(s=>s.name).join(", ")} — az qalıb</span>
+            </div>
+          )}
           {stock.map(s=>{
             const low=s.qty<=s.min;
             return(
-              <div key={s.id} style={{background:low?"linear-gradient(135deg,rgba(42,20,20,0.9),rgba(26,12,12,0.95))":C.card,
-                border:`1px solid ${low?"rgba(224,85,85,0.4)":C.border}`,borderRadius:14,padding:"14px",marginBottom:10}}>
+              <div key={s.id} className="card anim-fadeup" style={{padding:14,marginBottom:8,
+                background:low?"linear-gradient(135deg,rgba(40,15,15,0.9),rgba(25,8,8,0.95))":"var(--surface-2)",
+                borderColor:low?"var(--danger-border)":"var(--border-1)"}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
                   <div>
                     <div style={{fontSize:15,fontWeight:600}}>{s.name}</div>
-                    <div style={{fontSize:11,color:C.muted,marginTop:2}}>Min: {s.min} {s.unit}</div>
+                    <div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:2}}>Min: {s.min} {s.unit}</div>
                   </div>
                   <div style={{textAlign:"right"}}>
-                    <div style={{fontSize:26,fontWeight:800,color:low?C.red:C.green}}>{s.qty}</div>
-                    <div style={{fontSize:11,color:C.muted}}>{s.unit}</div>
+                    <div className="price" style={{fontSize:28,fontWeight:900,color:low?"var(--danger)":"var(--success)",lineHeight:1}}>{s.qty}</div>
+                    <div style={{fontSize:11,color:"var(--text-tertiary)"}}>{s.unit}</div>
                   </div>
                 </div>
-                {low&&<div style={{fontSize:12,color:C.red,marginBottom:10,fontWeight:600,display:"flex",alignItems:"center",gap:4}}>⚠ Az qalıb!</div>}
+                {low&&<div style={{display:"flex",alignItems:"center",gap:5,fontSize:12,color:"var(--danger)",fontWeight:600,marginBottom:10}}>
+                  <Icon.warning size={12} color="var(--danger)"/>Az qalıb!
+                </div>}
                 <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                  <input style={{...inp,flex:1,padding:"9px 12px"}} type="number" placeholder="Miqdar..." min="1"
+                  <input className="inp" style={{flex:1,padding:"9px 12px",fontSize:14}} type="number" placeholder="Miqdar..." min="1"
                     value={stockAdd[s.id]||""} onChange={e=>setStockAdd(p=>({...p,[s.id]:e.target.value}))}/>
-                  <button
-                    onClick={()=>{
-                      const val = parseInt(stockAdd[s.id]);
-                      if(val && val > 0){
-                        updateStock(s.id, val);
-                        setStockAdd(p=>({...p,[s.id]:""}));
-                      }
-                    }}
-                    style={{...btn("linear-gradient(135deg,#2d7a3d,#1a5a28)","#fff"),padding:"9px 14px",fontSize:13,borderRadius:10}}>+ Əlavə</button>
-                  <button
-                    onClick={()=>{
-                      const val = parseInt(stockAdd[s.id]);
-                      if(val && val > 0){
-                        updateStock(s.id, -val);
-                        setStockAdd(p=>({...p,[s.id]:""}));
-                      }
-                    }}
-                    style={{...btn("rgba(224,85,85,0.1)",C.red),border:`1px solid rgba(224,85,85,0.3)`,padding:"9px 12px",fontSize:13,borderRadius:10}}>− Azalt</button>
+                  <button className="btn btn-success" style={{padding:"9px 14px",whiteSpace:"nowrap"}}
+                    onClick={()=>{const v=parseInt(stockAdd[s.id]);if(v>0){updateStock(s.id,v);setStockAdd(p=>({...p,[s.id]:""}));}}}>
+                    + Əlavə
+                  </button>
+                  <button className="btn btn-danger" style={{padding:"9px 12px"}}
+                    onClick={()=>{const v=parseInt(stockAdd[s.id]);if(v>0){updateStock(s.id,-v);setStockAdd(p=>({...p,[s.id]:""}));}}}>
+                    − Azalt
+                  </button>
                   {stockDel===s.id?(
-                    <div style={{display:"flex",gap:5}}>
-                      <button onClick={()=>{setStock(prev=>prev.filter(x=>x.id!==s.id));setStockDel(null);}}
-                        style={{...btn("rgba(224,85,85,0.15)",C.red),border:"1px solid rgba(224,85,85,0.4)",padding:"7px 10px",fontSize:12,borderRadius:8}}>Sil</button>
-                      <button onClick={()=>setStockDel(null)} style={{...btn("rgba(255,255,255,0.06)","#888"),padding:"7px 8px",fontSize:12,borderRadius:8}}>Ləğv</button>
+                    <div style={{display:"flex",gap:4}}>
+                      <button className="btn btn-danger" style={{padding:"8px 10px"}} onClick={()=>{setStock(prev=>prev.filter(x=>x.id!==s.id));setStockDel(null);}}>Sil</button>
+                      <button className="btn btn-ghost" style={{padding:"8px"}} onClick={()=>setStockDel(null)}>✕</button>
                     </div>
                   ):(
-                    <button onClick={()=>setStockDel(s.id)} style={{...btn("rgba(224,85,85,0.08)",C.red),border:"1px solid rgba(224,85,85,0.2)",padding:"9px 10px",fontSize:14,borderRadius:10}}>🗑</button>
+                    <button className="btn-icon" style={{background:"var(--danger-dim)",borderColor:"var(--danger-border)"}} onClick={()=>setStockDel(s.id)}>
+                      <Icon.trash size={14} color="var(--danger)"/>
+                    </button>
                   )}
                 </div>
               </div>
             );
           })}
-          <div className="glass-card" style={{padding:16,marginTop:6}}>
-            <div style={{fontSize:13,fontWeight:700,color:C.gold,marginBottom:12}}>➕ Yeni stok məhsulu</div>
-            <input style={{...inp,marginBottom:8}} placeholder="Məhsul adı" value={newStock.name} onChange={e=>setNewStock(p=>({...p,name:e.target.value}))}/>
-            <div style={{display:"flex",gap:8,marginBottom:8}}>
-              <input style={{...inp,flex:1}} placeholder="Miqdar" type="number" value={newStock.qty} onChange={e=>setNewStock(p=>({...p,qty:e.target.value}))}/>
-              <input style={{...inp,flex:1}} placeholder="Min." type="number" value={newStock.min} onChange={e=>setNewStock(p=>({...p,min:e.target.value}))}/>
-              <input style={{...inp,width:85}} placeholder="Vahid" value={newStock.unit} onChange={e=>setNewStock(p=>({...p,unit:e.target.value}))}/>
+          {/* Add stock */}
+          <div className="card" style={{padding:16,marginTop:4}}>
+            <div className="section-label">Yeni Stok Məhsulu</div>
+            <input className="inp" style={{marginBottom:8}} placeholder="Məhsul adı" value={newStock.name} onChange={e=>setNewStock(p=>({...p,name:e.target.value}))}/>
+            <div style={{display:"flex",gap:8,marginBottom:10}}>
+              <input className="inp" style={{flex:1}} placeholder="Miqdar" type="number" value={newStock.qty} onChange={e=>setNewStock(p=>({...p,qty:e.target.value}))}/>
+              <input className="inp" style={{flex:1}} placeholder="Min." type="number" value={newStock.min} onChange={e=>setNewStock(p=>({...p,min:e.target.value}))}/>
+              <input className="inp" style={{width:88}} placeholder="Vahid" value={newStock.unit} onChange={e=>setNewStock(p=>({...p,unit:e.target.value}))}/>
             </div>
-            <button onClick={()=>{
-              if(!newStock.name||!newStock.qty) return;
+            <button className="btn btn-primary" style={{width:"100%"}} onClick={()=>{
+              if(!newStock.name||!newStock.qty)return;
               setStock(prev=>[...prev,{id:Date.now(),name:newStock.name,unit:newStock.unit||"ədəd",qty:parseInt(newStock.qty),min:parseInt(newStock.min)||0}]);
               setNewStock({name:"",unit:"ədəd",qty:"",min:""});
-            }} style={{...btn("linear-gradient(135deg,#2d7a3d,#1f5c28)","#fff"),width:"100%",padding:12,fontSize:14,borderRadius:12}}>Əlavə et</button>
+              showToast("✓ Stok əlavə edildi");
+            }}>Əlavə et</button>
           </div>
         </div>
       </div>
     );
   }
 
-  // ── EXPENSES VIEW ──
+  /* ─ EXPENSES VIEW ─ */
   if(view==="expenses"){
     const grouped=expenses.reduce((a,e)=>{(a[e.date]=a[e.date]||[]).push(e);return a;},{});
     const totalAll=expenses.reduce((s,e)=>s+e.amount,0);
     return(
-      <div style={{minHeight:"100vh",background:C.bg,maxWidth:520,margin:"0 auto"}}>
-        <div style={{background:"#14141e",padding:"14px 16px",display:"flex",alignItems:"center",gap:12,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:50,backdropFilter:"blur(12px)"}}>
-          <button onClick={()=>setView("tables")} style={{...btn("rgba(255,255,255,0.06)",C.text),padding:"7px 14px",fontSize:13,border:`1px solid ${C.border}`}}>← Geri</button>
-          <div style={{flex:1,fontSize:16,fontWeight:700}}>💸 Xərclər</div>
-          <SyncDot/>
+      <div className="page">
+        <div className="page-header" style={{padding:"12px 16px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <button className="btn btn-ghost" style={{padding:"8px 12px",gap:6,fontSize:13}} onClick={()=>setView("tables")}>
+              <Icon.back size={16}/> Geri
+            </button>
+            <div style={{flex:1,fontSize:15,fontWeight:700}}>Xərclər</div>
+            <SyncDot status={sync}/>
+          </div>
         </div>
         <div style={{padding:"14px 14px 80px"}}>
-          <div className="glass-card" style={{padding:16,marginBottom:14}}>
-            <div style={{fontSize:13,fontWeight:700,color:C.gold,marginBottom:12}}>➕ Yeni xərc</div>
-            <input style={{...inp,marginBottom:8}} placeholder="Açıqlama (məs: Un alışı)" value={newExp.desc} onChange={e=>setNewExp(p=>({...p,desc:e.target.value}))}/>
+          {/* Add expense */}
+          <div className="card" style={{padding:16,marginBottom:14}}>
+            <div className="section-label">Yeni Xərc</div>
+            <input className="inp" style={{marginBottom:8}} placeholder="Açıqlama" value={newExp.desc} onChange={e=>setNewExp(p=>({...p,desc:e.target.value}))}/>
             <div style={{display:"flex",gap:8,marginBottom:8}}>
-              <input style={{...inp,flex:1}} placeholder="Məbləğ (₼)" type="number" step="0.01" value={newExp.amount} onChange={e=>setNewExp(p=>({...p,amount:e.target.value}))}/>
-              <select style={{...inp,flex:1}} value={newExp.method} onChange={e=>setNewExp(p=>({...p,method:e.target.value}))}>
-                {["Nağd","Bank","Kart"].map(m=><option key={m} value={m}>{m}</option>)}
+              <input className="inp" style={{flex:1}} placeholder="Məbləğ ₼" type="number" step="0.01" value={newExp.amount} onChange={e=>setNewExp(p=>({...p,amount:e.target.value}))}/>
+              <select className="inp" style={{flex:1}} value={newExp.method} onChange={e=>setNewExp(p=>({...p,method:e.target.value}))}>
+                {["Nağd","Bank","Kart"].map(m=><option key={m}>{m}</option>)}
               </select>
             </div>
-            <select style={{...inp,marginBottom:10}} value={newExp.cat} onChange={e=>setNewExp(p=>({...p,cat:e.target.value}))}>
-              {["Məhsul alışı","Kommunal","İşçi maaşı","Texniki xərc","Reklam","Digər"].map(c=><option key={c} value={c}>{c}</option>)}
+            <select className="inp" style={{marginBottom:10}} value={newExp.cat} onChange={e=>setNewExp(p=>({...p,cat:e.target.value}))}>
+              {EXP_CATS.map(c=><option key={c}>{c}</option>)}
             </select>
-            <button onClick={addExpense} style={{...btn("linear-gradient(135deg,#7a2d2d,#5a1f1f)","#fff"),width:"100%",padding:12,fontSize:14,borderRadius:12}}>Xərc əlavə et</button>
+            <button className="btn btn-danger" style={{width:"100%"}} onClick={addExpense}>Xərc əlavə et</button>
           </div>
-
-          <div style={{display:"flex",justifyContent:"space-between",padding:"8px 4px",marginBottom:10}}>
-            <div style={{fontSize:13,fontWeight:600,color:C.muted}}>Ümumi xərc</div>
-            <div style={{fontSize:16,fontWeight:800,color:C.red}}>{totalAll.toFixed(2)} ₼</div>
+          {/* Total */}
+          <div style={{display:"flex",justifyContent:"space-between",padding:"8px 2px",marginBottom:10}}>
+            <span style={{fontSize:13,color:"var(--text-tertiary)"}}>Ümumi xərc</span>
+            <span className="price" style={{fontSize:16,fontWeight:800,color:"var(--danger)"}}>{totalAll.toFixed(2)} ₼</span>
           </div>
-
+          {/* List */}
           {Object.entries(grouped).sort((a,b)=>b[0].localeCompare(a[0])).map(([date,entries])=>{
             const dt=entries.reduce((s,e)=>s+e.amount,0);
             return(
               <div key={date} style={{marginBottom:14}}>
-                <div style={{display:"flex",justifyContent:"space-between",padding:"8px 4px",marginBottom:8}}>
-                  <div style={{fontSize:13,fontWeight:700,color:C.gold}}>📅 {date}</div>
-                  <div style={{fontSize:13,fontWeight:700,color:C.red}}>{dt.toFixed(2)} ₼</div>
+                <div style={{display:"flex",justifyContent:"space-between",padding:"8px 2px",marginBottom:8}}>
+                  <span style={{fontSize:13,fontWeight:700,color:"var(--gold)"}}>{date}</span>
+                  <span className="price" style={{fontSize:13,fontWeight:700,color:"var(--danger)"}}>{dt.toFixed(2)} ₼</span>
                 </div>
                 {entries.map(e=>(
-                  <div key={e.id} className="glass-card fade-in" style={{padding:"12px 14px",marginBottom:7}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                      <div style={{flex:1}}>
+                  <div key={e.id} className="card anim-fadeup" style={{padding:"12px 14px",marginBottom:6}}>
+                    <div style={{display:"flex",alignItems:"flex-start",gap:8}}>
+                      <div style={{flex:1,minWidth:0}}>
                         <div style={{fontSize:14,fontWeight:500}}>{e.desc}</div>
-                        <div style={{fontSize:11,color:C.muted,marginTop:3}}>{e.cat} · {e.method} · {e.time}</div>
+                        <div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:3}}>{e.cat} · {e.method} · {e.time}</div>
                       </div>
-                      <div style={{display:"flex",alignItems:"center",gap:8}}>
-                        <div style={{fontSize:15,fontWeight:700,color:C.red}}>{e.amount.toFixed(2)}₼</div>
-                        <button onClick={()=>setEditExp({...e})}
-                          style={{...btn("rgba(96,168,240,0.1)",C.blue),border:"1px solid rgba(96,168,240,0.25)",padding:"5px 9px",fontSize:12,borderRadius:8}}>✎</button>
-                        <button onClick={()=>deleteExpense(e.id)}
-                          style={{...btn("rgba(224,85,85,0.08)",C.red),border:"1px solid rgba(224,85,85,0.2)",padding:"5px 8px",fontSize:12,borderRadius:8}}>🗑</button>
+                      <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
+                        <span className="price" style={{fontSize:15,fontWeight:700,color:"var(--danger)"}}>{e.amount.toFixed(2)}₼</span>
+                        <button className="btn-icon" onClick={()=>setEditExp({...e})}>
+                          <Icon.edit size={13} color="var(--info)"/>
+                        </button>
+                        <button className="btn-icon" style={{background:"var(--danger-dim)",borderColor:"var(--danger-border)"}} onClick={()=>deleteExpense(e.id)}>
+                          <Icon.trash size={13} color="var(--danger)"/>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1003,149 +1458,408 @@ function App(){
             );
           })}
         </div>
-
-        {/* Edit Expense Modal */}
+        {/* Edit modal */}
         {editExp&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",zIndex:300,display:"flex",flexDirection:"column",justifyContent:"flex-end",backdropFilter:"blur(4px)"}}
-            onClick={e=>{if(e.target===e.currentTarget)setEditExp(null);}}>
-            <div className="slide-up" style={{background:"#13131e",borderRadius:"22px 22px 0 0",padding:"0 0 32px",border:`1px solid ${C.border}`}}>
-              <div style={{width:40,height:4,background:"#2a2a3c",borderRadius:2,margin:"12px auto"}}/>
-              <div style={{padding:"0 18px 14px",borderBottom:`1px solid ${C.border}`,fontSize:15,fontWeight:700,color:C.gold}}>Xərci Redaktə et</div>
-              <div style={{padding:"16px 18px"}}>
-                <input style={{...inp,marginBottom:8}} placeholder="Açıqlama" value={editExp.desc} onChange={e=>setEditExp(p=>({...p,desc:e.target.value}))}/>
+          <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)setEditExp(null);}}>
+            <div className="sheet anim-slidup">
+              <div className="sheet-handle"/>
+              <div className="sheet-header"><div style={{fontSize:15,fontWeight:700,color:"var(--gold)"}}>Xərci Redaktə et</div></div>
+              <div className="sheet-body">
+                <input className="inp" style={{marginBottom:8}} placeholder="Açıqlama" value={editExp.desc} onChange={e=>setEditExp(p=>({...p,desc:e.target.value}))}/>
                 <div style={{display:"flex",gap:8,marginBottom:8}}>
-                  <input style={{...inp,flex:1}} placeholder="Məbləğ" type="number" step="0.01" value={editExp.amount} onChange={e=>setEditExp(p=>({...p,amount:e.target.value}))}/>
-                  <select style={{...inp,flex:1}} value={editExp.method} onChange={e=>setEditExp(p=>({...p,method:e.target.value}))}>
-                    {["Nağd","Bank","Kart"].map(m=><option key={m} value={m}>{m}</option>)}
+                  <input className="inp" style={{flex:1}} placeholder="Məbləğ" type="number" step="0.01" value={editExp.amount} onChange={e=>setEditExp(p=>({...p,amount:e.target.value}))}/>
+                  <select className="inp" style={{flex:1}} value={editExp.method} onChange={e=>setEditExp(p=>({...p,method:e.target.value}))}>
+                    {["Nağd","Bank","Kart"].map(m=><option key={m}>{m}</option>)}
                   </select>
                 </div>
-                <select style={{...inp,marginBottom:14}} value={editExp.cat} onChange={e=>setEditExp(p=>({...p,cat:e.target.value}))}>
-                  {["Məhsul alışı","Kommunal","İşçi maaşı","Texniki xərc","Reklam","Digər"].map(c=><option key={c} value={c}>{c}</option>)}
+                <select className="inp" value={editExp.cat} onChange={e=>setEditExp(p=>({...p,cat:e.target.value}))}>
+                  {EXP_CATS.map(c=><option key={c}>{c}</option>)}
                 </select>
+              </div>
+              <div className="sheet-footer">
                 <div style={{display:"flex",gap:10}}>
-                  <button onClick={()=>setEditExp(null)} style={{flex:1,...btn("rgba(255,255,255,0.05)",C.text),padding:12,border:`1px solid ${C.border}`}}>Ləğv</button>
-                  <button onClick={saveEditExpense} style={{flex:1,...btn("linear-gradient(135deg,#2d5a7a,#1a3a5a)","#fff"),padding:12}}>Saxla</button>
+                  <button className="btn btn-secondary" style={{flex:1}} onClick={()=>setEditExp(null)}>Ləğv</button>
+                  <button className="btn btn-primary" style={{flex:1}} onClick={saveEditExpense}>Saxla</button>
                 </div>
               </div>
             </div>
           </div>
         )}
+        {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
       </div>
     );
   }
 
-  // ── SETTINGS VIEW ──
-  if(view==="settings"){
+  /* ─ INVENTORY VIEW ─ */
+  if(view==="inventory"){
+    const lastInv=invLog.length>0?invLog[0]:null;
+    const REASONS=["İsraf / köhnəlmə","Sayılmamış sifariş","Qırılma / tökülmə","Oğurluq","Digər"];
+
+    // Start new inventory session
+    function startInventory(){
+      const draft=stock.map(s=>({
+        stockId:s.id, name:s.name, unit:s.unit,
+        system:s.qty, actual:"", reason:"İsraf / köhnəlmə"
+      }));
+      setInvDraft(draft);
+    }
+
+    function updateDraftItem(stockId,field,value){
+      setInvDraft(prev=>prev.map(x=>x.stockId===stockId?{...x,[field]:value}:x));
+    }
+
+    function confirmInventory(){
+      if(!invDraft)return;
+      const items=invDraft.map(x=>({
+        ...x,
+        actual:x.actual===""?x.system:parseFloat(x.actual),
+        diff:(x.actual===""?0:parseFloat(x.actual)-x.system)
+      }));
+      const totalLoss=items.reduce((s,x)=>x.diff<0?s+Math.abs(x.diff):s,0);
+
+      // Update stock with actual counts
+      setStock(prev=>prev.map(s=>{
+        const item=items.find(x=>x.stockId===s.id);
+        if(!item)return s;
+        const actual=item.actual;
+        return{...s,qty:actual};
+      }));
+
+      // Save to log
+      const entry={
+        id:Date.now(),
+        date:workDate,
+        time:timeStr(),
+        by:role,
+        items,
+        totalLoss
+      };
+      setInvLog(prev=>[entry,...prev]);
+      setInvDraft(null);
+      showToast("✓ İnventarizasiya tamamlandı");
+    }
+
+    // Summary of last inventory
+    function getLossColor(diff){
+      if(diff===0)return"var(--text-tertiary)";
+      if(diff>0)return"var(--success)";
+      return"var(--danger)";
+    }
+
     return(
-      <div style={{minHeight:"100vh",background:C.bg,maxWidth:520,margin:"0 auto"}}>
-        <div style={{background:"#14141e",padding:"14px 16px",display:"flex",alignItems:"center",gap:12,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:50,backdropFilter:"blur(12px)"}}>
-          <button onClick={()=>setView("tables")} style={{...btn("rgba(255,255,255,0.06)",C.text),padding:"7px 14px",fontSize:13,border:`1px solid ${C.border}`}}>← Geri</button>
-          <div style={{flex:1,fontSize:16,fontWeight:700}}>⚙️ Ayarlar</div>
-          <SyncDot/>
-        </div>
-        <div style={{padding:16}}>
-          {/* Menu management */}
-          <div className="glass-card" style={{padding:16,marginBottom:12}}>
-            <div style={{fontSize:13,fontWeight:700,color:C.gold,marginBottom:12}}>🍔 Menyu — {menu.length} məhsul</div>
-            <div style={{background:"rgba(0,0,0,0.2)",borderRadius:12,padding:12,marginBottom:12}}>
-              <div style={{fontSize:12,color:C.muted,marginBottom:8,fontWeight:500}}>Yeni məhsul əlavə et</div>
-              <input style={{...inp,marginBottom:8}} placeholder="Məhsul adı" value={newItem.name} onChange={e=>setNewItem(p=>({...p,name:e.target.value}))}/>
-              <div style={{display:"flex",gap:8,marginBottom:8}}>
-                <input style={{...inp,flex:1}} placeholder="Qiymət (₼)" type="number" step="0.01" value={newItem.price} onChange={e=>setNewItem(p=>({...p,price:e.target.value}))}/>
-                <select style={{...inp,flex:1}} value={newItem.cat} onChange={e=>setNewItem(p=>({...p,cat:e.target.value}))}>
-                  {ALL_CATS.filter(c=>c!=="Hamısı").map(c=><option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <button onClick={addMenuItem} style={{...btn("linear-gradient(135deg,#2d7a3d,#1f5c28)","#fff"),width:"100%",padding:10,fontSize:13,borderRadius:10}}>Əlavə et</button>
+      <div className="page">
+        <div className="page-header" style={{padding:"12px 16px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <button className="btn btn-ghost" style={{padding:"8px 12px",gap:6,fontSize:13}} onClick={()=>{setInvDraft(null);setView("tables");}}>
+              <Icon.back size={16}/> Geri
+            </button>
+            <div style={{flex:1}}>
+              <div style={{fontSize:15,fontWeight:700}}>İnventarizasiya</div>
+              {lastInv&&<div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:1}}>Son: {lastInv.date} · {lastInv.time}</div>}
             </div>
-            <div style={{maxHeight:320,overflowY:"auto"}}>
-              {ALL_CATS.filter(c=>c!=="Hamısı").map(cat=>{
-                const items=menu.filter(m=>m.cat===cat);
-                if(!items.length) return null;
+            <SyncDot status={sync}/>
+          </div>
+        </div>
+
+        <div style={{padding:"14px 14px 80px"}}>
+
+          {/* Active draft */}
+          {invDraft?(
+            <>
+              <div style={{background:"var(--gold-dim)",border:"1px solid var(--gold-border)",borderRadius:"var(--r-md)",padding:"10px 14px",marginBottom:14,display:"flex",alignItems:"center",gap:8}}>
+                <Icon.clipboard size={15} color="var(--gold)"/>
+                <span style={{fontSize:13,color:"var(--gold)",fontWeight:600}}>Aktiv sayım — {invDraft.length} məhsul</span>
+                <button className="btn btn-ghost" style={{marginLeft:"auto",padding:"4px 10px",fontSize:12}} onClick={()=>setInvDraft(null)}>Ləğv et</button>
+              </div>
+
+              {invDraft.map((item,i)=>{
+                const actual=item.actual===""?null:parseFloat(item.actual);
+                const diff=actual!==null?actual-item.system:null;
+                const hasChange=diff!==null&&diff!==0;
                 return(
-                  <div key={cat} style={{marginBottom:12}}>
-                    <div style={{fontSize:10,color:C.muted,padding:"4px 0",fontWeight:700,textTransform:"uppercase",letterSpacing:1.2}}>{cat}</div>
-                    {items.map(item=>(
-                      <div key={item.id} style={{display:"flex",alignItems:"center",padding:"9px 10px",background:"rgba(255,255,255,0.03)",borderRadius:10,marginBottom:4,border:`1px solid ${C.border}`}}>
-                        <div style={{flex:1,fontSize:13}}>{item.name}</div>
-                        <div style={{fontSize:13,color:C.gold,marginRight:10}}>{item.price.toFixed(2)}₼</div>
-                        {delConfirm===item.id?(
-                          <div style={{display:"flex",gap:5}}>
-                            <button onClick={()=>{setMenu(prev=>prev.filter(m=>m.id!==item.id));setDelConfirm(null);}}
-                              style={{...btn("rgba(224,85,85,0.15)",C.red),border:"1px solid rgba(224,85,85,0.4)",padding:"4px 8px",fontSize:12,borderRadius:7}}>Sil</button>
-                            <button onClick={()=>setDelConfirm(null)} style={{...btn("rgba(255,255,255,0.06)","#888"),padding:"4px 8px",fontSize:12,borderRadius:7}}>Ləğv</button>
+                  <div key={item.stockId} className="card anim-fadeup" style={{padding:14,marginBottom:8,animationDelay:`${i*0.02}s`,
+                    borderColor:hasChange&&diff<0?"var(--danger-border)":hasChange&&diff>0?"var(--success-border)":"var(--border-1)"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+                      <div>
+                        <div style={{fontSize:14,fontWeight:600}}>{item.name}</div>
+                        <div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:1}}>Sistem: <span className="price" style={{color:"var(--info)",fontWeight:600}}>{item.system} {item.unit}</span></div>
+                      </div>
+                      {diff!==null&&(
+                        <div style={{textAlign:"right"}}>
+                          <div className="price" style={{fontSize:18,fontWeight:800,color:getLossColor(diff)}}>
+                            {diff>0?"+":""}{diff.toFixed(0)}
                           </div>
-                        ):(
-                          <button onClick={()=>setDelConfirm(item.id)} style={{...btn("rgba(224,85,85,0.06)",C.red),border:"1px solid rgba(224,85,85,0.15)",padding:"5px 9px",fontSize:13,borderRadius:8}}>🗑</button>
-                        )}
+                          <div style={{fontSize:10,color:"var(--text-tertiary)"}}>{diff===0?"Dəyişiklik yoxdur":diff>0?"Artıq":"Çatışmazlıq"}</div>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:hasChange&&diff<0?8:0}}>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:11,color:"var(--text-tertiary)",marginBottom:5}}>Faktiki say ({item.unit})</div>
+                        <input className="inp" type="number" min="0" step="1"
+                          placeholder={`${item.system} (dəyişməyibsə boş burax)`}
+                          value={item.actual}
+                          onChange={e=>updateDraftItem(item.stockId,"actual",e.target.value)}
+                          style={{fontSize:16,fontWeight:600,textAlign:"center"}}/>
+                      </div>
+                    </div>
+                    {hasChange&&diff<0&&(
+                      <div>
+                        <div style={{fontSize:11,color:"var(--text-tertiary)",marginBottom:5}}>İtki səbəbi</div>
+                        <select className="inp" style={{fontSize:13}}
+                          value={item.reason}
+                          onChange={e=>updateDraftItem(item.stockId,"reason",e.target.value)}>
+                          {REASONS.map(r=><option key={r}>{r}</option>)}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Preview summary */}
+              {invDraft.some(x=>x.actual!==""&&parseFloat(x.actual)!==x.system)&&(
+                <div className="card" style={{padding:14,marginBottom:14,background:"rgba(248,113,113,0.05)",borderColor:"var(--danger-border)"}}>
+                  <div className="section-label" style={{marginBottom:10}}>Sayım Xülasəsi</div>
+                  {invDraft.filter(x=>x.actual!==""&&parseFloat(x.actual)!==x.system).map(x=>{
+                    const diff=parseFloat(x.actual)-x.system;
+                    return(
+                      <div key={x.stockId} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:"1px solid var(--border-1)"}}>
+                        <div>
+                          <span style={{fontSize:13}}>{x.name}</span>
+                          {diff<0&&<span style={{fontSize:11,color:"var(--text-tertiary)",marginLeft:6}}>{x.reason}</span>}
+                        </div>
+                        <span className="price" style={{fontSize:13,fontWeight:700,color:getLossColor(diff)}}>
+                          {diff>0?"+":""}{diff.toFixed(0)} {x.unit}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <div style={{display:"flex",justifyContent:"space-between",padding:"10px 0 0"}}>
+                    <span style={{fontSize:13,fontWeight:600,color:"var(--danger)"}}>Ümumi çatışmazlıq</span>
+                    <span className="price" style={{fontSize:14,fontWeight:800,color:"var(--danger)"}}>
+                      {invDraft.filter(x=>x.actual!==""&&parseFloat(x.actual)<x.system).reduce((s,x)=>s+(x.system-parseFloat(x.actual)),0).toFixed(0)} ədəd/vahid
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <button className="btn btn-primary" style={{width:"100%",fontSize:15,padding:14}} onClick={confirmInventory}>
+                Sayımı Tamamla və Stoku Yenilə
+              </button>
+            </>
+          ):(
+            <>
+              {/* Start button */}
+              <div style={{background:"linear-gradient(135deg,rgba(245,200,66,0.08),rgba(245,200,66,0.03))",border:"1px solid var(--gold-border)",borderRadius:"var(--r-xl)",padding:20,marginBottom:16,textAlign:"center"}}>
+                <div style={{fontSize:36,marginBottom:10}}>📋</div>
+                <div style={{fontSize:15,fontWeight:700,marginBottom:6}}>Həftəlik İnventarizasiya</div>
+                <div style={{fontSize:13,color:"var(--text-tertiary)",marginBottom:16,lineHeight:1.5}}>
+                  Anbarı fiziki sayın, faktiki rəqəmləri daxil edin.<br/>Sistem fərqi avtomatik hesablayacaq.
+                </div>
+                <button className="btn btn-primary" style={{fontSize:14,padding:"12px 28px"}} onClick={startInventory}>
+                  Sayıma Başla
+                </button>
+              </div>
+
+              {/* Weekly overview */}
+              {invLog.length>0&&(
+                <div className="card" style={{padding:14,marginBottom:12}}>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+                    <div className="section-label" style={{margin:0}}>Son İnventarizasiya</div>
+                    <span className="badge badge-muted">{lastInv.date}</span>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
+                    {[
+                      ["Yoxlanılan",lastInv.items.length,"var(--info)"],
+                      ["Uyğun",lastInv.items.filter(x=>x.diff===0).length,"var(--success)"],
+                      ["Fərqli",lastInv.items.filter(x=>x.diff!==0).length,"var(--danger)"],
+                    ].map(([l,v,c])=>(
+                      <div key={l} className="stat-card" style={{textAlign:"center"}}>
+                        <div style={{fontSize:11,color:"var(--text-tertiary)"}}>{l}</div>
+                        <div className="price" style={{fontSize:22,fontWeight:800,color:c,marginTop:3}}>{v}</div>
                       </div>
                     ))}
                   </div>
-                );
+                  {lastInv.items.filter(x=>x.diff!==0).length>0&&(
+                    <div>
+                      <div style={{fontSize:11,color:"var(--text-tertiary)",fontWeight:600,marginBottom:8}}>Fərqlər</div>
+                      {lastInv.items.filter(x=>x.diff!==0).map(x=>(
+                        <div key={x.stockId} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:"1px solid var(--border-1)"}}>
+                          <div>
+                            <div style={{fontSize:13}}>{x.name}</div>
+                            {x.diff<0&&<div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:1}}>{x.reason}</div>}
+                          </div>
+                          <div style={{textAlign:"right"}}>
+                            <div className="price" style={{fontSize:13,fontWeight:700,color:getLossColor(x.diff)}}>
+                              {x.diff>0?"+":""}{x.diff.toFixed(0)} {x.unit}
+                            </div>
+                            <div style={{fontSize:10,color:"var(--text-tertiary)"}}>{x.actual} faktiki</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* History log */}
+              {invLog.length>1&&(
+                <div className="card" style={{padding:14}}>
+                  <div className="section-label" style={{marginBottom:12}}>Keçmiş İnventarizasiyalar</div>
+                  {invLog.slice(1).map(entry=>{
+                    const losses=entry.items.filter(x=>x.diff<0);
+                    const gains=entry.items.filter(x=>x.diff>0);
+                    return(
+                      <div key={entry.id} style={{padding:"10px 0",borderBottom:"1px solid var(--border-1)"}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                          <span style={{fontSize:13,fontWeight:600}}>{entry.date}</span>
+                          <div style={{display:"flex",gap:8}}>
+                            {losses.length>0&&<span className="badge badge-danger">−{losses.length} məhsul</span>}
+                            {gains.length>0&&<span className="badge badge-success">+{gains.length} məhsul</span>}
+                            {losses.length===0&&gains.length===0&&<span className="badge badge-muted">Fərqsiz</span>}
+                          </div>
+                        </div>
+                        {losses.length>0&&(
+                          <div style={{fontSize:11,color:"var(--text-tertiary)"}}>
+                            {losses.map(x=>`${x.name} (${x.diff.toFixed(0)} ${x.unit})`).join(", ")}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {invLog.length===0&&(
+                <div style={{textAlign:"center",padding:"40px 0",color:"var(--text-tertiary)"}}>
+                  <div style={{fontSize:40,marginBottom:10,opacity:0.3}}>📋</div>
+                  <div style={{fontSize:13}}>Hələ inventarizasiya aparılmayıb</div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+        {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
+      </div>
+    );
+  }
+
+  /* ─ SETTINGS VIEW ─ */
+  if(view==="settings"){
+    return(
+      <div className="page">
+        <div className="page-header" style={{padding:"12px 16px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <button className="btn btn-ghost" style={{padding:"8px 12px",gap:6,fontSize:13}} onClick={()=>setView("tables")}>
+              <Icon.back size={16}/> Geri
+            </button>
+            <div style={{flex:1,fontSize:15,fontWeight:700}}>Ayarlar</div>
+            <SyncDot status={sync}/>
+          </div>
+        </div>
+        <div style={{padding:16,paddingBottom:40}}>
+          {/* Menu */}
+          <div className="card" style={{padding:16,marginBottom:12}}>
+            <div className="section-label">Menyu — {menu.length} məhsul</div>
+            <div className="card-inset" style={{padding:12,marginBottom:12}}>
+              <input className="inp" style={{marginBottom:8}} placeholder="Məhsul adı" value={newItem.name} onChange={e=>setNewItem(p=>({...p,name:e.target.value}))}/>
+              <div style={{display:"flex",gap:8,marginBottom:8}}>
+                <input className="inp" style={{flex:1}} placeholder="Qiymət ₼" type="number" step="0.01" value={newItem.price} onChange={e=>setNewItem(p=>({...p,price:e.target.value}))}/>
+                <select className="inp" style={{flex:1}} value={newItem.cat} onChange={e=>setNewItem(p=>({...p,cat:e.target.value}))}>
+                  {ALL_CATS.filter(c=>c!=="Hamısı").map(c=><option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <button className="btn btn-success" style={{width:"100%"}} onClick={()=>{if(newItem.name&&newItem.price){setMenu(prev=>[...prev,{id:Date.now(),name:newItem.name.trim(),price:parseFloat(newItem.price),cat:newItem.cat}]);setNewItem({name:"",price:"",cat:"İçki"});showToast("✓ Məhsul əlavə edildi");}}}>Əlavə et</button>
+            </div>
+            <div style={{maxHeight:300,overflowY:"auto"}}>
+              {ALL_CATS.filter(c=>c!=="Hamısı").map(cat=>{
+                const items=menu.filter(m=>m.cat===cat);if(!items.length)return null;
+                return(<div key={cat} style={{marginBottom:10}}>
+                  <div style={{fontSize:10,color:"var(--text-tertiary)",fontWeight:700,textTransform:"uppercase",letterSpacing:1,padding:"4px 0"}}>{cat}</div>
+                  {items.map(item=>(
+                    <div key={item.id} style={{display:"flex",alignItems:"center",padding:"9px 10px",background:"rgba(255,255,255,0.02)",borderRadius:"var(--r-sm)",marginBottom:4,border:"1px solid var(--border-1)"}}>
+                      <div style={{flex:1,fontSize:13}}>{item.name}</div>
+                      <span className="price" style={{fontSize:13,color:"var(--gold)",marginRight:10}}>{item.price.toFixed(2)}₼</span>
+                      {delConfirm===item.id?(
+                        <div style={{display:"flex",gap:5}}>
+                          <button className="btn btn-danger" style={{padding:"4px 8px",fontSize:12}} onClick={()=>{setMenu(prev=>prev.filter(m=>m.id!==item.id));setDelConfirm(null);}}>Sil</button>
+                          <button className="btn btn-ghost" style={{padding:"4px 8px",fontSize:12}} onClick={()=>setDelConfirm(null)}>Ləğv</button>
+                        </div>
+                      ):(
+                        <button className="btn-icon" style={{background:"var(--danger-dim)",borderColor:"var(--danger-border)"}} onClick={()=>setDelConfirm(item.id)}>
+                          <Icon.trash size={12} color="var(--danger)"/>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>);
               })}
             </div>
           </div>
 
-          {/* Set management */}
-          <div className="glass-card" style={{padding:16,marginBottom:12}}>
+          {/* Sets */}
+          <div className="card" style={{padding:16,marginBottom:12}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
-              <div style={{fontSize:13,fontWeight:700,color:C.gold}}>🎁 Set İdarəsi — {setsConfig.length} set</div>
-              <button onClick={()=>setShowNewSet(true)} style={{...btn("rgba(240,192,96,0.1)",C.gold),border:"1px solid rgba(240,192,96,0.3)",padding:"5px 12px",fontSize:12,borderRadius:8}}>+ Yeni</button>
+              <div className="section-label" style={{margin:0}}>Set İdarəsi — {setsConfig.length} set</div>
+              <button className="btn btn-ghost" style={{padding:"5px 10px",fontSize:12,gap:4}} onClick={()=>setShowNewSet(true)}>
+                <Icon.plus size={12}/> Yeni
+              </button>
             </div>
             {setsConfig.map(sc=>(
-              <div key={sc.id} style={{background:"rgba(0,0,0,0.2)",borderRadius:10,padding:"10px 12px",marginBottom:8,border:`1px solid ${C.border}`}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                  <div style={{fontSize:13,fontWeight:600}}>{sc.name}</div>
-                  <span style={{fontSize:12,color:C.gold}}>{menu.find(m=>m.id===sc.id)?.price.toFixed(2)||"?"}₼</span>
+              <div key={sc.id} className="card-inset" style={{padding:"10px 12px",marginBottom:7}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                  <span style={{fontSize:13,fontWeight:600}}>{sc.name}</span>
+                  <span className="price" style={{fontSize:13,color:"var(--gold)"}}>{menu.find(m=>m.id===sc.id)?.price.toFixed(2)||"?"}₼</span>
                 </div>
-                <div style={{fontSize:11,color:C.muted}}>
-                  İçki: {sc.drinkOptions.join(", ")||"—"}<br/>
-                  {sc.extras.length>0&&`Əlavələr: ${sc.extras.join(", ")}`}
-                </div>
+                <div style={{fontSize:11,color:"var(--text-tertiary)"}}>İçki: {sc.drinkOptions.join(", ")||"—"}</div>
+                {sc.extras.length>0&&<div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:2}}>Əlavə: {sc.extras.join(", ")}</div>}
               </div>
             ))}
           </div>
 
           {/* Work date */}
-          <div className="glass-card" style={{padding:16,marginBottom:12}}>
-            <div style={{fontSize:13,fontWeight:600,marginBottom:4}}>📅 İş Günü Tarixi</div>
-            <div style={{fontSize:12,color:C.muted,marginBottom:8}}>Gecə 12:00-dan sonra bağlanan masalar əvvəlki tarixin altında qeyd edilir</div>
-            <div style={{fontSize:18,fontWeight:700,color:C.gold,margin:"8px 0"}}>{workDate}</div>
-            <button onClick={()=>{setDateInput(workDate);setShowDate(true);}}
-              style={{...btn("rgba(255,255,255,0.06)",C.text),padding:"8px 16px",fontSize:13,border:`1px solid ${C.border}`,borderRadius:10}}>Tarixi dəyiş</button>
+          <div className="card" style={{padding:16,marginBottom:12}}>
+            <div className="section-label">İş Günü Tarixi</div>
+            <div style={{fontSize:12,color:"var(--text-tertiary)",marginBottom:10}}>Gecə 06:00-dan əvvəl açıldıqda əvvəlki gün avtomatik seçilir</div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <span className="price" style={{fontSize:20,fontWeight:800,color:"var(--gold)"}}>{workDate}</span>
+              <button className="btn btn-secondary" style={{padding:"8px 14px",fontSize:13}} onClick={()=>{setDateInput(workDate);setShowDate(true);}}>Dəyiş</button>
+            </div>
           </div>
 
           {/* Passwords */}
-          <div className="glass-card" style={{padding:16,marginBottom:12}}>
-            <div style={{fontSize:13,fontWeight:600,marginBottom:10}}>🔐 Şifrələri dəyiş</div>
-            <div style={{fontSize:12,color:C.muted,marginBottom:6}}>Admin şifrəsi</div>
-            <input style={{...inp,marginBottom:10}} type="password" placeholder="Yeni admin şifrəsi" value={pwForm.adminPw} onChange={e=>setPwForm(p=>({...p,adminPw:e.target.value}))}/>
-            <div style={{fontSize:12,color:C.muted,marginBottom:6}}>Ofisiant şifrəsi</div>
-            <input style={{...inp,marginBottom:12}} type="password" placeholder="Yeni ofisiant şifrəsi" value={pwForm.waiterPw} onChange={e=>setPwForm(p=>({...p,waiterPw:e.target.value}))}/>
-            {pwMsg&&<div style={{color:C.green,fontSize:13,marginBottom:10,display:"flex",alignItems:"center",gap:5}}>✓ {pwMsg}</div>}
-            <button onClick={savePasswords} style={{...btn("linear-gradient(135deg,#2d4a7a,#1f3060)","#fff"),width:"100%",padding:11,fontSize:13,borderRadius:12}}>Şifrələri Saxla</button>
+          <div className="card" style={{padding:16,marginBottom:12}}>
+            <div className="section-label">Şifrələr</div>
+            <div style={{fontSize:12,color:"var(--text-tertiary)",marginBottom:6}}>Admin şifrəsi</div>
+            <input className="inp" style={{marginBottom:10}} type="password" placeholder="Yeni admin şifrəsi" value={pwForm.a} onChange={e=>setPwForm(p=>({...p,a:e.target.value}))}/>
+            <div style={{fontSize:12,color:"var(--text-tertiary)",marginBottom:6}}>Ofisiant şifrəsi</div>
+            <input className="inp" style={{marginBottom:12}} type="password" placeholder="Yeni ofisiant şifrəsi" value={pwForm.w} onChange={e=>setPwForm(p=>({...p,w:e.target.value}))}/>
+            {pwMsg&&<div style={{color:"var(--success)",fontSize:13,marginBottom:10,display:"flex",alignItems:"center",gap:5}}><Icon.check size={13} color="var(--success)"/>{pwMsg}</div>}
+            <button className="btn btn-secondary" style={{width:"100%"}} onClick={savePasswords}>Şifrələri Saxla</button>
           </div>
 
           {/* Reset */}
-          <div className="glass-card" style={{padding:16}}>
-            <div style={{fontSize:13,fontWeight:600,marginBottom:4}}>🔄 Günü sıfırla</div>
-            <div style={{fontSize:12,color:C.muted,marginBottom:12}}>Bütün açıq masaları təmizlər</div>
-            <button onClick={()=>setShowReset(true)} style={{...btn("rgba(224,85,85,0.1)",C.red),border:"1px solid rgba(224,85,85,0.3)",padding:"9px 16px",fontSize:13,borderRadius:10}}>Masaları təmizlə</button>
+          <div className="card" style={{padding:16}}>
+            <div className="section-label">Masaları Sıfırla</div>
+            <div style={{fontSize:12,color:"var(--text-tertiary)",marginBottom:12}}>Bütün açıq sifarişlər silinəcək</div>
+            <button className="btn btn-danger" style={{padding:"9px 16px"}} onClick={()=>setShowReset(true)}>Masaları Təmizlə</button>
           </div>
         </div>
 
         {/* Date modal */}
         {showDate&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",zIndex:300,display:"flex",flexDirection:"column",justifyContent:"flex-end",backdropFilter:"blur(4px)"}}
-            onClick={e=>{if(e.target===e.currentTarget)setShowDate(false);}}>
-            <div className="slide-up" style={{background:"#13131e",borderRadius:"22px 22px 0 0",padding:"0 0 32px",border:`1px solid ${C.border}`}}>
-              <div style={{width:40,height:4,background:"#2a2a3c",borderRadius:2,margin:"12px auto"}}/>
-              <div style={{padding:"0 18px 14px",borderBottom:`1px solid ${C.border}`,fontSize:15,fontWeight:700,color:C.gold}}>İş günü tarixi</div>
-              <div style={{padding:"16px 18px"}}>
-                <input style={{...inp,marginBottom:14}} placeholder="28.05.2026" value={dateInput} onChange={e=>setDateInput(e.target.value)}/>
+          <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)setShowDate(false);}}>
+            <div className="sheet anim-slidup">
+              <div className="sheet-handle"/>
+              <div className="sheet-header"><div style={{fontSize:15,fontWeight:700,color:"var(--gold)"}}>İş günü tarixi</div></div>
+              <div className="sheet-body">
+                <input className="inp" placeholder="28.05.2026" value={dateInput} onChange={e=>setDateInput(e.target.value)}/>
+              </div>
+              <div className="sheet-footer">
                 <div style={{display:"flex",gap:10}}>
-                  <button onClick={()=>setShowDate(false)} style={{flex:1,...btn("rgba(255,255,255,0.05)",C.text),padding:12,border:`1px solid ${C.border}`}}>Ləğv</button>
-                  <button onClick={()=>{if(dateInput){setWorkDate(dateInput);setShowDate(false);}}} style={{flex:1,...btn("linear-gradient(135deg,#2d7a3d,#1f5c28)","#fff"),padding:12}}>Saxla</button>
+                  <button className="btn btn-secondary" style={{flex:1}} onClick={()=>setShowDate(false)}>Ləğv</button>
+                  <button className="btn btn-primary" style={{flex:1}} onClick={()=>{if(dateInput){setWorkDate(dateInput);setShowDate(false);}showToast("✓ Tarix yeniləndi");}}>Saxla</button>
                 </div>
               </div>
             </div>
@@ -1154,16 +1868,19 @@ function App(){
 
         {/* Reset modal */}
         {showReset&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",zIndex:300,display:"flex",flexDirection:"column",justifyContent:"flex-end",backdropFilter:"blur(4px)"}}
-            onClick={e=>{if(e.target===e.currentTarget)setShowReset(false);}}>
-            <div className="slide-up" style={{background:"#13131e",borderRadius:"22px 22px 0 0",padding:"0 0 32px",border:`1px solid ${C.border}`}}>
-              <div style={{width:40,height:4,background:"#2a2a3c",borderRadius:2,margin:"12px auto"}}/>
-              <div style={{fontSize:15,fontWeight:700,color:C.red,padding:"0 18px 14px",borderBottom:`1px solid ${C.border}`}}>⚠ Bütün masaları təmizlə?</div>
-              <div style={{padding:"16px 18px"}}>
-                <div style={{fontSize:13,color:C.muted,marginBottom:18}}>Açıq sifarişlər silinəcək. Geri almaq olmaz.</div>
+          <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)setShowReset(false);}}>
+            <div className="sheet anim-slidup">
+              <div className="sheet-handle"/>
+              <div className="sheet-header">
+                <div style={{fontSize:15,fontWeight:700,color:"var(--danger)",display:"flex",alignItems:"center",gap:8}}><Icon.warning size={15} color="var(--danger)"/>Masaları Sıfırla?</div>
+              </div>
+              <div className="sheet-body">
+                <p style={{fontSize:14,color:"var(--text-secondary)",lineHeight:1.5}}>Bütün açıq sifarişlər silinəcək. Bu əməliyyat geri alına bilməz.</p>
+              </div>
+              <div className="sheet-footer">
                 <div style={{display:"flex",gap:10}}>
-                  <button onClick={()=>setShowReset(false)} style={{flex:1,...btn("rgba(255,255,255,0.05)",C.text),padding:12,border:`1px solid ${C.border}`}}>Ləğv et</button>
-                  <button onClick={()=>{setTables(initTables());setShowReset(false);}} style={{flex:1,...btn("rgba(224,85,85,0.15)",C.red),border:"1px solid rgba(224,85,85,0.4)",padding:12}}>Sil</button>
+                  <button className="btn btn-secondary" style={{flex:1}} onClick={()=>setShowReset(false)}>Ləğv et</button>
+                  <button className="btn btn-danger" style={{flex:1}} onClick={()=>{setTables(initTables());setShowReset(false);showToast("✓ Masalar sıfırlandı");}}>Sıfırla</button>
                 </div>
               </div>
             </div>
@@ -1172,130 +1889,133 @@ function App(){
 
         {/* New set modal */}
         {showNewSet&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",zIndex:300,display:"flex",flexDirection:"column",justifyContent:"flex-end",backdropFilter:"blur(4px)"}}
-            onClick={e=>{if(e.target===e.currentTarget)setShowNewSet(false);}}>
-            <div className="slide-up" style={{background:"#13131e",borderRadius:"22px 22px 0 0",padding:"0 0 32px",border:`1px solid ${C.border}`,maxHeight:"85vh",overflowY:"auto"}}>
-              <div style={{width:40,height:4,background:"#2a2a3c",borderRadius:2,margin:"12px auto"}}/>
-              <div style={{padding:"0 18px 14px",borderBottom:`1px solid ${C.border}`,fontSize:15,fontWeight:700,color:C.gold}}>🎁 Yeni Set Yarat</div>
-              <div style={{padding:"16px 18px"}}>
-                <div style={{fontSize:12,color:C.muted,marginBottom:6}}>Set adı</div>
-                <input style={{...inp,marginBottom:10}} placeholder="Set 20" value={newSetForm.name} onChange={e=>setNewSetForm(p=>({...p,name:e.target.value}))}/>
-                <div style={{fontSize:12,color:C.muted,marginBottom:6}}>Qiymət (₼)</div>
-                <input style={{...inp,marginBottom:10}} type="number" step="0.01" placeholder="20.00" value={newSetForm.price} onChange={e=>setNewSetForm(p=>({...p,price:e.target.value}))}/>
-                <div style={{fontSize:12,color:C.muted,marginBottom:6}}>İçki seçimləri (vergüllə ayır)</div>
-                <input style={{...inp,marginBottom:10}} placeholder="Pepsi 1L, Kola 1L, Sprite 1L" value={newSetForm.drinkOptions} onChange={e=>setNewSetForm(p=>({...p,drinkOptions:e.target.value}))}/>
-                <div style={{fontSize:12,color:C.muted,marginBottom:6}}>Default içki</div>
-                <input style={{...inp,marginBottom:10}} placeholder="Pepsi 1L" value={newSetForm.defaultDrink} onChange={e=>setNewSetForm(p=>({...p,defaultDrink:e.target.value}))}/>
-                <div style={{fontSize:12,color:C.muted,marginBottom:6}}>Stokdan azalacaq əlavələr (vergüllə)</div>
-                <input style={{...inp,marginBottom:16}} placeholder="Tost, Tost" value={newSetForm.extras} onChange={e=>setNewSetForm(p=>({...p,extras:e.target.value}))}/>
+          <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)setShowNewSet(false);}}>
+            <div className="sheet anim-slidup" style={{maxHeight:"85dvh"}}>
+              <div className="sheet-handle"/>
+              <div className="sheet-header"><div style={{fontSize:15,fontWeight:700,color:"var(--gold)"}}>Yeni Set Yarat</div></div>
+              <div className="sheet-body scroll-area">
+                {[["Set adı","Set 20",newSetForm.name,v=>setNewSetForm(p=>({...p,name:v})),"text"],
+                  ["Qiymət ₼","20.00",newSetForm.price,v=>setNewSetForm(p=>({...p,price:v})),"number"],
+                  ["İçki seçimləri (vergüllə)","Pepsi 1L, Kola 1L",newSetForm.drinkOptions,v=>setNewSetForm(p=>({...p,drinkOptions:v})),"text"],
+                  ["Default içki","Pepsi 1L",newSetForm.defaultDrink,v=>setNewSetForm(p=>({...p,defaultDrink:v})),"text"],
+                  ["Stokdan azalacaq əlavələr","Tost, Tost",newSetForm.extras,v=>setNewSetForm(p=>({...p,extras:v})),"text"],
+                ].map(([label,ph,val,onChange,type])=>(
+                  <div key={label} style={{marginBottom:12}}>
+                    <div style={{fontSize:12,color:"var(--text-tertiary)",fontWeight:600,marginBottom:6}}>{label}</div>
+                    <input className="inp" type={type} placeholder={ph} value={val} onChange={e=>onChange(e.target.value)}/>
+                  </div>
+                ))}
+              </div>
+              <div className="sheet-footer">
                 <div style={{display:"flex",gap:10}}>
-                  <button onClick={()=>setShowNewSet(false)} style={{flex:1,...btn("rgba(255,255,255,0.05)",C.text),padding:12,border:`1px solid ${C.border}`}}>Ləğv</button>
-                  <button onClick={addNewSet} style={{flex:1,...btn("linear-gradient(135deg,#5a3a9a,#3a2270)","#fff"),padding:12}}>Yarat</button>
+                  <button className="btn btn-secondary" style={{flex:1}} onClick={()=>setShowNewSet(false)}>Ləğv</button>
+                  <button className="btn btn-primary" style={{flex:1}} onClick={addNewSet}>Yarat</button>
                 </div>
               </div>
             </div>
           </div>
         )}
+        {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
       </div>
     );
   }
 
-  // ── MAIN TABLE VIEW ──
-  const isAdmin = role==="admin";
+  /* ─ MAIN TABLE VIEW ─ */
   return(
-    <div style={{minHeight:"100vh",background:C.bg,maxWidth:520,margin:"0 auto"}}>
+    <div className="page">
       {/* Header */}
-      <div style={{background:"linear-gradient(180deg,#16161f,#0a0a0f)",padding:"14px 16px 10px",borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:100,backdropFilter:"blur(16px)"}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-          <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <span style={{fontSize:22}}>🍔</span>
-            <div>
-              <div style={{fontSize:16,fontWeight:800,color:C.text,letterSpacing:-0.3}}>PitStop</div>
-              <div style={{fontSize:10,color:C.muted,marginTop:-1}}>Masa İdarəsi</div>
-            </div>
-            <div className="badge" style={{background:isAdmin?"rgba(240,192,96,0.1)":"rgba(86,204,122,0.1)",color:isAdmin?C.gold:C.green,border:`1px solid ${isAdmin?"rgba(240,192,96,0.3)":"rgba(86,204,122,0.3)"}`}}>
-              {isAdmin?"👑 Admin":"👤 Ofisiant"}
-            </div>
+      <div className="page-header" style={{padding:"12px 16px 10px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+          <div style={{width:34,height:34,background:"var(--gold-dim)",border:"1px solid var(--gold-border)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>🍔</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:16,fontWeight:800,letterSpacing:-0.3}}>PitStop</div>
+            <div style={{fontSize:10,color:"var(--text-tertiary)",marginTop:-1}}>Masa İdarəsi</div>
           </div>
-          <div style={{display:"flex",gap:8,alignItems:"center"}}>
-            <SyncDot/>
-            <button onClick={()=>{setDateInput(workDate);setShowDate(true);}}
-              style={{...btn("rgba(255,255,255,0.05)",C.textSub),border:`1px solid ${C.border}`,borderRadius:8,padding:"5px 10px",fontSize:11}}>
-              📅 {workDate}
-            </button>
-            <button onClick={logout} style={{...btn("rgba(255,255,255,0.04)",C.muted),padding:"5px 10px",fontSize:11,borderRadius:8,border:`1px solid ${C.border}`}}>Çıx</button>
-          </div>
+          <span className={`badge ${isAdmin?"badge-gold":"badge-success"}`}>{isAdmin?"Admin":"Ofisiant"}</span>
+          <SyncDot status={sync}/>
+          <button className="btn btn-ghost" style={{padding:"6px 10px",fontSize:12}} onClick={logout}>Çıx</button>
         </div>
-        {/* Stats bar */}
+        {/* Stats */}
         <div style={{display:"flex",gap:7,overflowX:"auto",scrollbarWidth:"none",paddingBottom:2}}>
-          {[
-            {label:"Aktiv", value:activeCount, color:C.green},
-            {label:"Gəlir", value:todayTotal.toFixed(2)+"₼", color:C.gold},
-            {label:"Nağd", value:todayCash.toFixed(2)+"₼", color:C.textSub},
-            {label:"Kart", value:todayCard.toFixed(2)+"₼", color:C.blue},
-          ].map(({label,value,color})=>(
-            <div key={label} style={{background:"rgba(255,255,255,0.04)",border:`1px solid ${C.border}`,borderRadius:10,padding:"6px 12px",fontSize:11,whiteSpace:"nowrap",flex:"0 0 auto"}}>
-              <span style={{color:C.muted}}>{label}: </span>
-              <span style={{color,fontWeight:700}}>{value}</span>
+          {(isAdmin?[
+            {l:"Aktiv",v:activeCount,c:"var(--success)"},
+            {l:"Gəlir",v:todayTotal.toFixed(2)+"₼",c:"var(--gold)"},
+            {l:"Nağd",v:todayCash.toFixed(2)+"₼",c:"var(--text-secondary)"},
+            {l:"Kart",v:todayCard.toFixed(2)+"₼",c:"var(--info)"},
+          ]:[
+            {l:"Aktiv masa",v:activeCount,c:"var(--success)"},
+          ]).map(({l,v,c})=>(
+            <div key={l} style={{background:"rgba(255,255,255,0.03)",border:"1px solid var(--border-1)",borderRadius:"var(--r-sm)",padding:"6px 12px",fontSize:11,whiteSpace:"nowrap",flexShrink:0}}>
+              <span style={{color:"var(--text-tertiary)"}}>{l}: </span>
+              <span className="price" style={{color:c,fontWeight:700}}>{v}</span>
             </div>
           ))}
+          {isAdmin&&(
+            <button onClick={()=>setShowKassaClose(true)}
+              style={{background:"var(--gold-dim)",border:"1px solid var(--gold-border)",borderRadius:"var(--r-sm)",padding:"6px 12px",fontSize:11,whiteSpace:"nowrap",flexShrink:0,cursor:"pointer",color:"var(--gold)",fontWeight:600,fontFamily:"inherit"}}>
+              🔒 {todayKassa?"Kassaya bax":"Günü Bağla"}
+            </button>
+          )}
         </div>
       </div>
 
+      {/* Low stock warning */}
+      {lowStock.length>0&&isAdmin&&(
+        <div className="kassa-warning" onClick={()=>setView("stock")}>
+          <Icon.warning size={15} color="var(--warning)"/>
+          <span style={{fontSize:12,color:"var(--warning)",fontWeight:500}}>{lowStock.map(s=>s.name).join(", ")} az qalıb</span>
+          <span style={{fontSize:11,color:"var(--text-tertiary)",marginLeft:"auto"}}>Stoka bax →</span>
+        </div>
+      )}
+
       {/* Navigation */}
-      <div style={{display:"flex",borderBottom:`1px solid ${C.border}`,background:"#0e0e17",overflowX:"auto",scrollbarWidth:"none"}}>
+      <div className="nav-bar">
         {[
-          ["tables","🪑 Masalar",true],
-          ["history","📊 Hesabat",isAdmin],
-          ["stock","📦 Stok",isAdmin],
-          ["expenses","💸 Xərc",isAdmin],
-          ["settings","⚙️",isAdmin],
-        ].filter(([,,show])=>show).map(([v,l])=>(
-          <button key={v} className="nav-tab" onClick={()=>setView(v)}
-            style={{flex:v==="settings"?0:1,padding:v==="settings"?"11px 16px":"11px 8px",
-              background:view===v?"rgba(240,192,96,0.06)":"transparent",
-              border:"none",borderBottom:view===v?`2px solid ${C.gold}`:"2px solid transparent",
-              color:view===v?C.gold:C.muted,fontSize:12,fontWeight:view===v?700:400,
-              cursor:"pointer",whiteSpace:"nowrap"}}>
-            {l}
+          {v:"tables",icon:<Icon.table size={18}/>,label:"Masalar",show:true},
+          {v:"history",icon:<Icon.chart size={18}/>,label:"Hesabat",show:isAdmin},
+          {v:"stock",icon:<Icon.box size={18}/>,label:"Stok",show:isAdmin},
+          {v:"expenses",icon:<Icon.cash size={18}/>,label:"Xərc",show:isAdmin},
+          {v:"inventory",icon:<Icon.clipboard size={18}/>,label:"Sayım",show:isAdmin},
+          {v:"settings",icon:<Icon.settings size={18}/>,label:"Ayar",show:isAdmin},
+        ].filter(t=>t.show).map(t=>(
+          <button key={t.v} className={`nav-tab${view===t.v?" active":""}`} onClick={()=>setView(t.v)}>
+            <span className="nav-tab-icon">{t.icon}</span>
+            {t.label}
           </button>
         ))}
       </div>
 
-      {/* Table view */}
+      {/* Loc tabs */}
       {view==="tables"&&(
         <>
-          <div style={{display:"flex",borderBottom:`1px solid ${C.border}`}}>
-            {[["içəri","🏠 İçəri"],["çöl","🌿 Çöl"]].map(([v,l])=>(
+          <div style={{display:"flex",borderBottom:"1px solid var(--border-1)"}}>
+            {[["içəri","İçəri (15)"],["çöl","Çöl (17)"]].map(([v,l])=>(
               <button key={v} onClick={()=>setLoc(v)}
-                style={{flex:1,padding:"11px",background:loc===v?`rgba(240,192,96,0.08)`:"transparent",
-                  border:"none",borderBottom:loc===v?`2px solid ${C.gold}`:"2px solid transparent",
-                  color:loc===v?C.gold:C.muted,fontWeight:loc===v?700:400,fontSize:13,cursor:"pointer",
-                  transition:"all 0.15s"}}>
-                {l} (15)
+                style={{flex:1,padding:"11px",background:"transparent",border:"none",
+                  borderBottom:loc===v?"2px solid var(--gold)":"2px solid transparent",
+                  color:loc===v?"var(--gold)":"var(--text-tertiary)",
+                  fontWeight:loc===v?700:400,fontSize:13,cursor:"pointer",fontFamily:"inherit",transition:"all 0.15s"}}>
+                {l}
               </button>
             ))}
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,padding:"14px 12px"}}>
-            {ALL_TABLES.filter(t=>t.loc===loc).map(t=>{
+            {ALL_TABLES.filter(t=>t.loc===loc).map((t,i)=>{
               const orders=(tables[t.id]?.orders||[]).filter(o=>!o.x);
               const hasO=orders.length>0;
               const total=getTotal(t.id);
               const dNum=t.id<=15?t.id:t.id-15;
               return(
-                <div key={t.id} className="table-card" onClick={()=>{setSelTable(t.id);setView("detail");}}
-                  style={{background:hasO?"linear-gradient(145deg,rgba(30,50,30,0.9),rgba(15,28,15,0.95))":"rgba(22,22,32,0.8)",
-                    border:`1.5px solid ${hasO?"rgba(86,204,122,0.35)":C.border}`,borderRadius:14,
-                    padding:"13px 10px",cursor:"pointer",position:"relative",
-                    minHeight:88,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:4,
-                    boxShadow:hasO?"0 4px 20px rgba(86,204,122,0.08)":"none"}}>
-                  <div style={{width:8,height:8,borderRadius:"50%",
-                    background:hasO?C.green:"#2a2a3c",
-                    position:"absolute",top:10,right:10,
-                    boxShadow:hasO?"0 0 8px rgba(86,204,122,0.6)":"none"}}/>
-                  <div style={{fontSize:24,fontWeight:800,color:hasO?C.text:"#3a3a50"}}>{dNum}</div>
-                  <div style={{fontSize:13,fontWeight:700,color:hasO?C.green:"#2a2a40"}}>{hasO?`${total.toFixed(2)} ₼`:"Boş"}</div>
-                  {hasO&&<div style={{fontSize:10,color:C.muted}}>{orders.length} sif.</div>}
+                <div key={t.id} className={`table-card${hasO?" occupied":""} anim-fadeup`}
+                  style={{animationDelay:`${i*0.025}s`}}
+                  onClick={()=>{setSelTable(t.id);setView("detail");}}>
+                  {/* Status dot */}
+                  <div style={{position:"absolute",top:10,right:10,width:7,height:7,borderRadius:"50%",
+                    background:hasO?"var(--success)":"var(--border-2)",
+                    boxShadow:hasO?"0 0 6px var(--success)":"none"}}/>
+                  <div style={{fontSize:26,fontWeight:900,color:hasO?"var(--text-primary)":"var(--text-tertiary)",lineHeight:1}}>{dNum}</div>
+                  <div className="price" style={{fontSize:13,fontWeight:700,color:hasO?"var(--success)":"var(--text-tertiary)"}}>{hasO?`${total.toFixed(2)} ₼`:"Boş"}</div>
+                  {hasO&&<div style={{fontSize:10,color:"var(--text-tertiary)"}}>{orders.length} sif.</div>}
                 </div>
               );
             })}
@@ -1303,23 +2023,38 @@ function App(){
         </>
       )}
 
-      {/* Date modal in main view */}
+      {/* Date modal */}
       {showDate&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",zIndex:300,display:"flex",flexDirection:"column",justifyContent:"flex-end",backdropFilter:"blur(4px)"}}
-          onClick={e=>{if(e.target===e.currentTarget)setShowDate(false);}}>
-          <div className="slide-up" style={{background:"#13131e",borderRadius:"22px 22px 0 0",padding:"0 0 32px",border:`1px solid ${C.border}`}}>
-            <div style={{width:40,height:4,background:"#2a2a3c",borderRadius:2,margin:"12px auto"}}/>
-            <div style={{padding:"0 18px 14px",borderBottom:`1px solid ${C.border}`,fontSize:15,fontWeight:700,color:C.gold}}>İş günü tarixi</div>
-            <div style={{padding:"16px 18px"}}>
-              <input style={{...inp,marginBottom:14}} placeholder="28.05.2026" value={dateInput} onChange={e=>setDateInput(e.target.value)}/>
+        <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)setShowDate(false);}}>
+          <div className="sheet anim-slidup">
+            <div className="sheet-handle"/>
+            <div className="sheet-header"><div style={{fontSize:15,fontWeight:700,color:"var(--gold)"}}>İş günü tarixi</div></div>
+            <div className="sheet-body">
+              <input className="inp" placeholder="28.05.2026" value={dateInput} onChange={e=>setDateInput(e.target.value)}/>
+            </div>
+            <div className="sheet-footer">
               <div style={{display:"flex",gap:10}}>
-                <button onClick={()=>setShowDate(false)} style={{flex:1,...btn("rgba(255,255,255,0.05)",C.text),padding:12,border:`1px solid ${C.border}`}}>Ləğv</button>
-                <button onClick={()=>{if(dateInput){setWorkDate(dateInput);setShowDate(false);}}} style={{flex:1,...btn("linear-gradient(135deg,#2d7a3d,#1f5c28)","#fff"),padding:12}}>Saxla</button>
+                <button className="btn btn-secondary" style={{flex:1}} onClick={()=>setShowDate(false)}>Ləğv</button>
+                <button className="btn btn-primary" style={{flex:1}} onClick={()=>{if(dateInput){setWorkDate(dateInput);setShowDate(false);}}}>Saxla</button>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Kassa close */}
+      {showKassaClose&&(
+        <KassaCloseModal
+          workDate={workDate}
+          todayTotal={todayTotal}
+          todayCash={todayCash}
+          todayExp={todayExp}
+          kassaStart={kassaStart}
+          onClose={handleKassaClose}
+        />
+      )}
+
+      {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
     </div>
   );
 }
