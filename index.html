@@ -964,12 +964,7 @@ function App(){
         dbGet("history"),dbGet("workDate"),dbGet("creds"),dbGet("setsConfig"),
         dbGet("kassaLog"),dbGet("kassaStart"),dbGet("invLog")
       ]);
-      if(t)setTables(t);if(m)setMenu(m);if(s)setStock(s);
-      if(e)setExpenses(e);if(h)setHistory(h);if(w)setWorkDate(w);
-      if(c)setCreds(c);if(sc)setSetsConfig(sc);
-      if(kl)setKassaLog(kl);if(ks!=null)setKassaStart(ks);
-      if(il)setInvLog(il);
-      setHasNew(false);
+      if(t)setTables({...initTables(),...t});if(m)setMenu(m);if(s)setStock(s);
       showToast("✓ Yeniləndi");
     }catch{showToast("⚠ Xəta");}
     setRefreshing(false);
@@ -989,7 +984,7 @@ function App(){
           dbGet("history"),dbGet("workDate"),dbGet("creds"),dbGet("setsConfig"),
           dbGet("kassaLog"),dbGet("kassaStart"),dbGet("invLog")
         ]);
-        if(t)setTables(t);if(m)setMenu(m);if(s)setStock(s);
+        if(t)setTables({...initTables(),...t});if(m)setMenu(m);if(s)setStock(s);
         if(e)setExpenses(e);if(h)setHistory(h);if(w)setWorkDate(w);
         if(c)setCreds(c);if(sc)setSetsConfig(sc);
         if(kl)setKassaLog(kl);if(ks!=null)setKassaStart(ks);
@@ -1007,7 +1002,7 @@ function App(){
       .on("postgres_changes",{event:"UPDATE",schema:"public",table:"app_state"},(p)=>{
         const{key:k,value:v}=p.new;setSync("ok");setHasNew(true);
         const upd=(setter)=>setter(prev=>JSON.stringify(prev)!==JSON.stringify(v)?v:prev);
-        if(k==="tables")upd(setTables);if(k==="menu")upd(setMenu);if(k==="stock")upd(setStock);
+        if(k==="tables"){const merged={...initTables(),...v};setTables(prev=>JSON.stringify(prev)!==JSON.stringify(merged)?merged:prev);}if(k==="menu")upd(setMenu);if(k==="stock")upd(setStock);
         if(k==="expenses")upd(setExpenses);if(k==="history")upd(setHistory);
         if(k==="workDate")setWorkDate(prev=>prev!==v?v:prev);
         if(k==="creds")upd(setCreds);if(k==="setsConfig")upd(setSetsConfig);
@@ -1038,7 +1033,7 @@ function App(){
   useEffect(()=>{ls.set("role",role);},[role]);
 
   function logout(){setRole(null);ls.set("role",null);setView("tables");}
-  const getTotal=tid=>(tables[tid]?.orders||[]).filter(o=>!o.x).reduce((s,o)=>s+o.p*o.q,0);
+  const getTotal=tid=>((tables[tid]?.orders||[]).filter(o=>!o.x).reduce((s,o)=>s+o.p*o.q,0));
 
   /* STATS */
   const todayH=history.filter(h=>h.date===workDate);
