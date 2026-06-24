@@ -431,8 +431,74 @@ button{cursor:pointer}
 .kassa-diff-negative{color:var(--danger)}
 .kassa-diff-zero{color:var(--text-secondary)}
 
-@media(min-width:521px){
-  .page{border-left:1px solid var(--border-1);border-right:1px solid var(--border-1)}
+/* ─── DESKTOP LAYOUT ─── */
+.app-shell{display:flex;min-height:100dvh}
+.sidebar{display:none}
+.main-content{flex:1;min-width:0;max-width:520px;margin:0 auto;position:relative}
+
+@media(min-width:900px){
+  ::-webkit-scrollbar{display:block;width:5px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:3px}
+
+  .app-shell{display:grid;grid-template-columns:220px 1fr;height:100dvh;overflow:hidden}
+
+  .sidebar{
+    display:flex;flex-direction:column;
+    background:var(--surface-1);
+    border-right:1px solid var(--border-1);
+    height:100dvh;overflow-y:auto;
+    position:sticky;top:0;z-index:50;
+  }
+  .sidebar-logo{
+    padding:20px 18px 16px;border-bottom:1px solid var(--border-1);
+    display:flex;align-items:center;gap:10px;
+  }
+  .sidebar-nav{padding:10px 8px;flex:1}
+  .sidebar-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border-radius:var(--r-md);
+    cursor:pointer;font-size:14px;font-weight:500;
+    color:var(--text-secondary);background:transparent;border:none;
+    font-family:inherit;width:100%;text-align:left;
+    transition:all 0.15s;margin-bottom:2px;
+  }
+  .sidebar-item:hover{background:var(--surface-hover);color:var(--text-primary)}
+  .sidebar-item.active{
+    background:var(--gold-dim);color:var(--gold);
+    border:1px solid var(--gold-border);font-weight:600;
+  }
+  .sidebar-footer{padding:12px 8px 20px;border-top:1px solid var(--border-1)}
+
+  .main-content{max-width:100%;margin:0;overflow-y:auto;height:100dvh}
+
+  .nav-bar{display:none !important}
+  .page-header{padding:16px 24px !important}
+  .desktop-pad{padding-left:24px !important;padding-right:24px !important}
+
+  .tables-grid{
+    grid-template-columns:repeat(5,1fr) !important;
+    padding:16px 24px !important;gap:10px !important;
+  }
+  .table-card{min-height:96px !important}
+
+  .overlay{justify-content:center;align-items:center;padding:20px}
+  .sheet{border-radius:var(--r-2xl) !important;max-width:480px;width:100%;max-height:88dvh}
+  .sheet-handle{display:none}
+
+  .stats-row{
+    display:grid !important;
+    grid-template-columns:repeat(4,1fr) !important;
+    gap:8px !important;overflow:visible !important;
+  }
+  .stat-pill{border-radius:var(--r-md) !important;padding:10px 14px !important;flex-shrink:unset !important}
+  .fab{bottom:24px !important;right:24px !important}
+  .kassa-warning{margin:10px 24px 0 !important}
+}
+
+@media(min-width:1200px){
+  .app-shell{grid-template-columns:240px 1fr}
+  .tables-grid{grid-template-columns:repeat(6,1fr) !important}
 }
 </style>
 </head>
@@ -613,7 +679,7 @@ function LoginScreen({onLogin,creds}){
         {/* Logo */}
         <div style={{textAlign:"center",marginBottom:40}}>
           <div style={{width:72,height:72,background:"var(--gold-dim)",border:"1px solid var(--gold-border)",borderRadius:20,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:36}}>
-            🍔
+            ☕
           </div>
           <div style={{fontSize:26,fontWeight:800,color:"var(--text-primary)",letterSpacing:-0.5}}>PitStop</div>
           <div style={{fontSize:13,color:"var(--text-tertiary)",marginTop:4}}>Masa İdarəetmə Sistemi</div>
@@ -887,6 +953,27 @@ function App(){
   const [pwForm,setPwForm]=useState({a:"",w:""});
   const [pwMsg,setPwMsg]=useState("");
   const [newSetForm,setNewSetForm]=useState({name:"",price:"",defaultDrink:"",drinkOptions:"",extras:""});
+  const [refreshing,setRefreshing]=useState(false);
+  const [hasNew,setHasNew]=useState(false);
+
+  async function manualRefresh(){
+    setRefreshing(true);
+    try{
+      const [t,m,s,e,h,w,c,sc,kl,ks,il]=await Promise.all([
+        dbGet("tables"),dbGet("menu"),dbGet("stock"),dbGet("expenses"),
+        dbGet("history"),dbGet("workDate"),dbGet("creds"),dbGet("setsConfig"),
+        dbGet("kassaLog"),dbGet("kassaStart"),dbGet("invLog")
+      ]);
+      if(t)setTables(t);if(m)setMenu(m);if(s)setStock(s);
+      if(e)setExpenses(e);if(h)setHistory(h);if(w)setWorkDate(w);
+      if(c)setCreds(c);if(sc)setSetsConfig(sc);
+      if(kl)setKassaLog(kl);if(ks!=null)setKassaStart(ks);
+      if(il)setInvLog(il);
+      setHasNew(false);
+      showToast("✓ Yeniləndi");
+    }catch{showToast("⚠ Xəta");}
+    setRefreshing(false);
+  }
   const [toast,setToast]=useState(null);
   const timers=useRef({});
 
@@ -918,7 +1005,7 @@ function App(){
     if(loading)return;
     const ch=sb.channel("app_state_changes")
       .on("postgres_changes",{event:"UPDATE",schema:"public",table:"app_state"},(p)=>{
-        const{key:k,value:v}=p.new;setSync("ok");
+        const{key:k,value:v}=p.new;setSync("ok");setHasNew(true);
         const upd=(setter)=>setter(prev=>JSON.stringify(prev)!==JSON.stringify(v)?v:prev);
         if(k==="tables")upd(setTables);if(k==="menu")upd(setMenu);if(k==="stock")upd(setStock);
         if(k==="expenses")upd(setExpenses);if(k==="history")upd(setHistory);
@@ -1051,6 +1138,18 @@ function App(){
   if(!role)return<LoginScreen onLogin={r=>{setRole(r);ls.set("role",r);}} creds={creds}/>;
 
   const isAdmin=role==="admin";
+  const RefBtn=()=>(
+    <button onClick={manualRefresh}
+      style={{background:hasNew?"var(--gold-dim)":"rgba(255,255,255,0.04)",
+        border:`1px solid ${hasNew?"var(--gold-border)":"var(--border-1)"}`,
+        borderRadius:"var(--r-sm)",padding:"5px 9px",
+        color:hasNew?"var(--gold)":"var(--text-tertiary)",
+        fontSize:11,fontFamily:"inherit",cursor:"pointer",
+        display:"flex",alignItems:"center",gap:4,fontWeight:hasNew?700:400}}>
+      <span className={refreshing?"spin":""} style={{display:"flex"}}><Icon.sync size={11} color={hasNew?"var(--gold)":"var(--text-tertiary)"}/></span>
+      {hasNew?"Yeni!":"Yenilə"}
+    </button>
+  );
 
   /* ─ DETAIL VIEW ─ */
   if(view==="detail"&&selTable){
@@ -1072,6 +1171,7 @@ function App(){
               <div style={{fontSize:15,fontWeight:700}}>{dLoc} · Masa {dNum}</div>
               <div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:1}}>{workDate}</div>
             </div>
+            <RefBtn/>
             <SyncDot status={sync}/>
           </div>
         </div>
@@ -1217,6 +1317,7 @@ function App(){
               <Icon.back size={16}/> Geri
             </button>
             <div style={{flex:1,fontSize:15,fontWeight:700}}>Hesabatlar</div>
+            <RefBtn/>
             <SyncDot status={sync}/>
           </div>
         </div>
@@ -1315,6 +1416,7 @@ function App(){
               <div style={{fontSize:15,fontWeight:700}}>Stok</div>
               {lowStock.length>0&&<div style={{fontSize:11,color:"var(--danger)",marginTop:1}}>{lowStock.length} məhsul az qalıb</div>}
             </div>
+            <RefBtn/>
             <SyncDot status={sync}/>
           </div>
         </div>
@@ -1402,6 +1504,7 @@ function App(){
               <Icon.back size={16}/> Geri
             </button>
             <div style={{flex:1,fontSize:15,fontWeight:700}}>Xərclər</div>
+            <RefBtn/>
             <SyncDot status={sync}/>
           </div>
         </div>
@@ -1557,6 +1660,7 @@ function App(){
               <div style={{fontSize:15,fontWeight:700}}>İnventarizasiya</div>
               {lastInv&&<div style={{fontSize:11,color:"var(--text-tertiary)",marginTop:1}}>Son: {lastInv.date} · {lastInv.time}</div>}
             </div>
+            <RefBtn/>
             <SyncDot status={sync}/>
           </div>
         </div>
@@ -1755,6 +1859,7 @@ function App(){
               <Icon.back size={16}/> Geri
             </button>
             <div style={{flex:1,fontSize:15,fontWeight:700}}>Ayarlar</div>
+            <RefBtn/>
             <SyncDot status={sync}/>
           </div>
         </div>
@@ -1921,22 +2026,73 @@ function App(){
   }
 
   /* ─ MAIN TABLE VIEW ─ */
+  const NAV_ITEMS=[
+    {v:"tables",icon:<Icon.table size={17}/>,label:"Masalar",show:true},
+    {v:"history",icon:<Icon.chart size={17}/>,label:"Hesabat",show:isAdmin},
+    {v:"stock",icon:<Icon.box size={17}/>,label:"Stok",show:isAdmin},
+    {v:"expenses",icon:<Icon.cash size={17}/>,label:"Xərc",show:isAdmin},
+    {v:"inventory",icon:<Icon.clipboard size={17}/>,label:"Sayım",show:isAdmin},
+    {v:"settings",icon:<Icon.settings size={17}/>,label:"Ayar",show:isAdmin},
+  ].filter(t=>t.show);
+
   return(
-    <div className="page">
+    <div className="app-shell">
+      {/* ── SIDEBAR (desktop) ── */}
+      <aside className="sidebar">
+        <div className="sidebar-logo">
+          <div style={{width:34,height:34,background:"var(--gold-dim)",border:"1px solid var(--gold-border)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>☕</div>
+          <div>
+            <div style={{fontSize:14,fontWeight:800}}>PitStop</div>
+            <div style={{fontSize:10,color:"var(--text-tertiary)"}}>Masa İdarəsi</div>
+          </div>
+        </div>
+        <nav className="sidebar-nav">
+          {NAV_ITEMS.map(t=>(
+            <button key={t.v} className={`sidebar-item${view===t.v?" active":""}`} onClick={()=>setView(t.v)}>
+              {t.icon}<span>{t.label}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <button onClick={()=>{setDateInput(workDate);setShowDate(true);}}
+            style={{width:"100%",background:"var(--surface-2)",border:"1px solid var(--border-1)",borderRadius:"var(--r-md)",padding:"9px 12px",display:"flex",alignItems:"center",gap:8,cursor:"pointer",marginBottom:8,fontFamily:"inherit"}}>
+            <span>📅</span>
+            <div style={{flex:1,textAlign:"left"}}>
+              <div style={{fontSize:10,color:"var(--text-tertiary)"}}>İş günü</div>
+              <div style={{fontSize:12,fontWeight:700,color:"var(--gold)"}}>{workDate}</div>
+            </div>
+          </button>
+          {isAdmin&&<button onClick={()=>setShowKassaClose(true)}
+            style={{width:"100%",background:"var(--gold-dim)",border:"1px solid var(--gold-border)",borderRadius:"var(--r-md)",padding:"9px 12px",display:"flex",alignItems:"center",gap:8,cursor:"pointer",marginBottom:8,fontFamily:"inherit",color:"var(--gold)",fontWeight:600,fontSize:13}}>
+            🔒 {todayKassa?"Kassa bağlanıb":"Günü Bağla"}
+          </button>}
+          <div style={{display:"flex",alignItems:"center",gap:6,padding:"4px 2px"}}>
+            <span className={`badge ${isAdmin?"badge-gold":"badge-success"}`}>{isAdmin?"Admin":"Ofisiant"}</span>
+            <RefBtn/>
+            <SyncDot status={sync}/>
+            <RefBtn/>
+            <button className="btn btn-ghost" style={{marginLeft:"auto",padding:"5px 8px",fontSize:11}} onClick={logout}>Çıx</button>
+          </div>
+        </div>
+      </aside>
+
+      {/* ── MAIN CONTENT ── */}
+      <div className="main-content">
       {/* Header */}
       <div className="page-header" style={{padding:"12px 16px 10px"}}>
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-          <div style={{width:34,height:34,background:"var(--gold-dim)",border:"1px solid var(--gold-border)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>🍔</div>
+          <div style={{width:34,height:34,background:"var(--gold-dim)",border:"1px solid var(--gold-border)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>☕</div>
           <div style={{flex:1}}>
             <div style={{fontSize:16,fontWeight:800,letterSpacing:-0.3}}>PitStop</div>
             <div style={{fontSize:10,color:"var(--text-tertiary)",marginTop:-1}}>Masa İdarəsi</div>
           </div>
           <span className={`badge ${isAdmin?"badge-gold":"badge-success"}`}>{isAdmin?"Admin":"Ofisiant"}</span>
+          <RefBtn/>
           <SyncDot status={sync}/>
           <button className="btn btn-ghost" style={{padding:"6px 10px",fontSize:12}} onClick={logout}>Çıx</button>
         </div>
         {/* Stats */}
-        <div style={{display:"flex",gap:7,overflowX:"auto",scrollbarWidth:"none",paddingBottom:2}}>
+        <div className="stats-row" style={{display:"flex",gap:7,overflowX:"auto",scrollbarWidth:"none",paddingBottom:2}}>
           {(isAdmin?[
             {l:"Aktiv",v:activeCount,c:"var(--success)"},
             {l:"Gəlir",v:todayTotal.toFixed(2)+"₼",c:"var(--gold)"},
@@ -2055,6 +2211,7 @@ function App(){
       )}
 
       {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
+      </div>{/* main-content */}
     </div>
   );
 }
